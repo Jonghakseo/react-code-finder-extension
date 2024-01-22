@@ -3,10 +3,43 @@ import 'webextension-polyfill';
 
 reloadOnUpdate('pages/background');
 
-/**
- * Extension reloading is necessary because the browser automatically caches the css.
- * If you do not use the css of the content script, please delete it.
- */
-reloadOnUpdate('pages/content/style.scss');
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.action.setBadgeText({ text: 'OFF' });
+  chrome.action.setBadgeBackgroundColor({ color: '#888' });
+});
 
-console.log('background loaded');
+chrome.action.onClicked.addListener(async tab => {
+  const tabText = await chrome.action.getBadgeText({ tabId: tab.id });
+  switch (tabText) {
+    case 'ON':
+      chrome.action.setBadgeText({ text: 'OFF' });
+      chrome.action.setBadgeBackgroundColor({ color: '#888' });
+      chrome.tabs.sendMessage(tab.id, { type: 'toggleOff' });
+
+      break;
+    case 'OFF':
+      chrome.action.setBadgeText({ text: 'ON' });
+      chrome.action.setBadgeBackgroundColor({ color: '#4688F1' });
+      chrome.tabs.sendMessage(tab.id, { type: 'toggleOn' });
+      break;
+    default:
+      break;
+  }
+});
+
+chrome.runtime.onConnect.addListener(port => {
+  port.onDisconnect.addListener(() => console.log('Port disconnected'));
+
+  port.onMessage.addListener(async message => {
+    console.log('port message', message);
+    switch (message.type) {
+      case 'getCurrentState': {
+        const tabText = await chrome.action.getBadgeText({ tabId: message.tabId });
+        port.postMessage({ type: 'getCurrentState', data: tabText });
+        break;
+      }
+      default:
+        break;
+    }
+  });
+});

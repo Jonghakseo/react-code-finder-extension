@@ -6,7 +6,7 @@ import makeManifest from './utils/plugins/make-manifest';
 import customDynamicImport from './utils/plugins/custom-dynamic-import';
 import addHmr from './utils/plugins/add-hmr';
 import watchRebuild from './utils/plugins/watch-rebuild';
-import inlineVitePreloadScript from './utils/plugins/inline-vite-preload-script';
+// import inlineVitePreloadScript from './utils/plugins/inline-vite-preload-script';
 
 const rootDir = resolve(__dirname);
 const srcDir = resolve(rootDir, 'src');
@@ -39,7 +39,7 @@ export default defineConfig({
     customDynamicImport(),
     addHmr({ background: enableHmrInBackgroundScript, view: true }),
     isDev && watchRebuild({ afterWriteBundle: regenerateCacheInvalidationKey }),
-    inlineVitePreloadScript(),
+    // inlineVitePreloadScript(),
   ],
   publicDir,
   build: {
@@ -55,7 +55,7 @@ export default defineConfig({
         devtools: resolve(pagesDir, 'devtools', 'index.html'),
         panel: resolve(pagesDir, 'panel', 'index.html'),
         contentInjected: resolve(pagesDir, 'content', 'injected', 'index.ts'),
-        contentUI: resolve(pagesDir, 'content', 'ui', 'index.ts'),
+        inject: resolve(pagesDir, 'content', 'injected', 'inject.ts'),
         background: resolve(pagesDir, 'background', 'index.ts'),
         contentStyle: resolve(pagesDir, 'content', 'style.scss'),
         popup: resolve(pagesDir, 'popup', 'index.html'),
@@ -65,7 +65,7 @@ export default defineConfig({
       },
       output: {
         entryFileNames: 'src/pages/[name]/index.js',
-        chunkFileNames: isDev ? 'assets/js/[name].js' : 'assets/js/[name].[hash].js',
+        chunkFileNames: 'assets/js/[name].js',
         assetFileNames: assetInfo => {
           const { name } = path.parse(assetInfo.name);
           const assetFileName = name === 'contentStyle' ? `${name}${getCacheInvalidationKey()}` : name;
