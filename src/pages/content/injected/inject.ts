@@ -60,17 +60,21 @@ type DebugSource = {
 
   devTools.getFiberRoots(1).forEach((initialRoot: Root) => {
     setFindCodeEvent(initialRoot);
+    Logger.prod('next dev code finder on');
   });
 
-  devTools.onCommitFiberRoot = (_, root) => {
-    clearTimeout(id);
-    id = setTimeout(() => {
-      Logger.debug('onCommitFiberRoot', root);
-      setFindCodeEvent(root);
-    }, 300);
-  };
-
-  // let selectedElement: HTMLElement | null = null;
+  // 기존 동작을 방해하지 않기 위한 Proxy
+  devTools.onCommitFiberRoot = new Proxy(devTools.onCommitFiberRoot, {
+    apply: function (target, thisArg, argumentsList) {
+      const root = argumentsList.at(1);
+      clearTimeout(id);
+      id = setTimeout(() => {
+        Logger.debug('onCommitFiberRoot', root);
+        setFindCodeEvent(root);
+      }, 300);
+      return Reflect.apply(target, thisArg, argumentsList);
+    },
+  });
 
   function setFindCodeEvent(root: Root) {
     nodeSourceMap = new WeakMap();
@@ -88,21 +92,12 @@ type DebugSource = {
 
           workInProgress.stateNode.addEventListener('click', event => onClick(event, workInProgress));
 
-          // if (debugSource?.fileName) {
-          //   const filePaths = debugSource.fileName.split('/');
-          //   const fileName = filePaths.at(-1);
-          //   const folderName = filePaths.at(-2);
-          //   workInProgress.stateNode.dataset.source = `${folderName}/${fileName}` + ':L' + debugSource.lineNumber;
-          // }
           workInProgress.stateNode.addEventListener('mouseenter', () => {
-            // selectedElement = workInProgress.stateNode;
-            // Logger.debug(selectedElement, debugSource);
             Logger.debug(workInProgress, debugSource);
           });
         }
       });
     }
-    Logger.prod('next dev code finder');
   }
 
   function onClick(event: MouseEvent, fiber: Fiber) {
@@ -113,7 +108,7 @@ type DebugSource = {
     event.preventDefault();
     event.stopPropagation();
     const debugSource = nodeSourceMap.get(fiber.stateNode);
-    Logger.prod(debugSource);
+    Logger.debug(debugSource);
     debugSource && openIDEByNextLaunchEditor(debugSource);
   }
 
@@ -167,7 +162,7 @@ type DebugSource = {
     params.append('lineNumber', String(debugSource.lineNumber));
     params.append('column', String(debugSource.columnNumber));
     const debugUrl = `http://localhost:3000/__nextjs_launch-editor?${params.toString()}`;
-    Logger.prod(debugUrl);
+    Logger.debug(debugUrl);
     self.fetch(debugUrl).catch(error => {
       console.error('There was an issue opening this code in your editor.', error);
     });
