@@ -1,10 +1,53 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import '@pages/sidepanel/index.css';
 import refreshOnUpdate from 'virtual:reload-on-update-in-view';
 import SidePanel from '@pages/sidepanel/SidePanel';
+import { ChakraProvider } from '@chakra-ui/react';
 
 refreshOnUpdate('pages/sidepanel');
+
+import * as monaco from 'monaco-editor';
+import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker';
+import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
+import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
+
+// @ts-ignore
+self.MonacoEnvironment = {
+  getWorker(_: any, label: string) {
+    console.log('label', label);
+    if (label === 'css' || label === 'scss' || label === 'less') {
+      return new cssWorker();
+    }
+    if (label === 'html' || label === 'handlebars' || label === 'razor') {
+      return new htmlWorker();
+    }
+    if (label === 'typescript' || label === 'javascript') {
+      return new tsWorker();
+    }
+    return new editorWorker();
+  },
+};
+
+monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+  target: monaco.languages.typescript.ScriptTarget.Latest,
+  allowNonTsExtensions: true,
+  moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+  module: monaco.languages.typescript.ModuleKind.CommonJS,
+  noEmit: true,
+  esModuleInterop: true,
+  strict: false,
+  jsx: monaco.languages.typescript.JsxEmit.React,
+  reactNamespace: 'React',
+  allowJs: true,
+  typeRoots: ['node_modules/@types'],
+});
+
+monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+  noSemanticValidation: false,
+  noSyntaxValidation: false,
+  diagnosticCodesToIgnore: [8016, 8010, 8008],
+});
 
 function init() {
   const appContainer = document.querySelector('#app-container');
@@ -12,7 +55,11 @@ function init() {
     throw new Error('Can not find #app-container');
   }
   const root = createRoot(appContainer);
-  root.render(<SidePanel />);
+  root.render(
+    <ChakraProvider>
+      <SidePanel />
+    </ChakraProvider>,
+  );
 }
 
 init();

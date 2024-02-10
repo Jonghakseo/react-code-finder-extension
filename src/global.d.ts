@@ -54,3 +54,26 @@ declare type DebugSource = {
   lineNumber: number;
   columnNumber: number;
 };
+
+declare type DebugSourceWithSourceCode = {
+  fileName: string;
+  lineNumber: number;
+  columnNumber: number;
+  sourceCode: string;
+};
+
+declare type MessageFromInjected =
+  | {
+      type: 'onClick';
+      data: string;
+    }
+  | {
+      type: 'onMouseEnter';
+      data: string;
+    }
+  | {
+      type: 'getCurrentState';
+      data?: never;
+    };
+
+declare type PostMessageToOutside = (msg: MessageFromInjected) => void;

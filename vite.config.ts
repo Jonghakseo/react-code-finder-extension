@@ -6,7 +6,7 @@ import makeManifest from './utils/plugins/make-manifest';
 import customDynamicImport from './utils/plugins/custom-dynamic-import';
 import addHmr from './utils/plugins/add-hmr';
 import watchRebuild from './utils/plugins/watch-rebuild';
-// import inlineVitePreloadScript from './utils/plugins/inline-vite-preload-script';
+import inlineVitePreloadScript from './utils/plugins/inline-vite-preload-script';
 
 const rootDir = resolve(__dirname);
 const srcDir = resolve(rootDir, 'src');
@@ -39,7 +39,7 @@ export default defineConfig({
     customDynamicImport(),
     addHmr({ background: enableHmrInBackgroundScript, view: true }),
     isDev && watchRebuild({ afterWriteBundle: regenerateCacheInvalidationKey }),
-    // inlineVitePreloadScript(),
+    inlineVitePreloadScript(),
   ],
   publicDir,
   build: {
@@ -51,6 +51,12 @@ export default defineConfig({
     reportCompressedSize: isProduction,
     emptyOutDir: !isDev,
     rollupOptions: {
+      onwarn(warning, warn) {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE' && warning.message.includes(`"use client"`)) {
+          return;
+        }
+        warn(warning);
+      },
       input: {
         devtools: resolve(pagesDir, 'devtools', 'index.html'),
         panel: resolve(pagesDir, 'panel', 'index.html'),

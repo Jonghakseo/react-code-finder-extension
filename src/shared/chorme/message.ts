@@ -14,7 +14,11 @@ export async function sendMessageToBackgroundAsync<M extends Message>(message: M
 
 type Message =
   | {
-      type: 'getInitialState';
+      type: 'getCurrentState';
+      data?: 'ON' | 'OFF';
+    }
+  | {
+      type: 'openSidePanel';
       data?: 'ON' | 'OFF';
     }
   | ErrorMessage;

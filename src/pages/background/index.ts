@@ -42,12 +42,15 @@ chrome.runtime.onConnect.addListener(port => {
 
   port.onMessage.addListener(async message => {
     switch (message.type) {
-      case 'getInitialState': {
+      case 'getCurrentState': {
         const tabText = await chrome.action.getBadgeText({ tabId: message.tabId });
-        port.postMessage({ type: 'getInitialState', data: tabText });
+        port.postMessage({ type: 'getCurrentState', data: tabText });
         break;
       }
-      case 'foundDebugSource': {
+      case 'openSidePanel': {
+        chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
+          tab?.id && chrome.sidePanel.open({ tabId: tab.id });
+        });
         break;
       }
     }

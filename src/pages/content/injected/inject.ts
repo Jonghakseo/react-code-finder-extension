@@ -18,7 +18,6 @@ try {
     );
     let ignorePathRegexp: string[] = [];
     let fiberRoot: Root | undefined;
-    let isRedirected = false;
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     const devToolsGlobalHook = window.__REACT_DEVTOOLS_GLOBAL_HOOK__;
@@ -43,10 +42,10 @@ try {
       },
     });
 
-    const checkInitialStateInterval = setInterval(() => {
+    setInterval(() => {
       Logger.debug('초기 상태 체크');
-      postMessageToOutside('getInitialState');
-    }, 500);
+      postMessageToOutside({ type: 'getCurrentState' });
+    }, 1500);
 
     window.addEventListener('message', message => {
       const response = message.data;
@@ -62,10 +61,9 @@ try {
           Logger.debug('toggleOff');
           activeState.current = false;
           break;
-        case 'getInitialState':
-          Logger.debug('getInitialState', response.data);
+        case 'getCurrentState':
+          Logger.debug('getCurrentState', response.data);
           activeState.current = response.data === 'ON';
-          clearInterval(checkInitialStateInterval);
           break;
         case 'setIgnorePaths':
           ignorePathRegexp = response.data.split(',');
@@ -101,7 +99,14 @@ try {
       invariant(fiber, 'stateNode 와 맵핑된 fiber 가 존재하지 않습니다.');
       Logger.debug(fiber);
       const debugSource = findDebugSource(fiber);
-      debugSource && openIDEByNextLaunchEditor(debugSource);
+      if (!debugSource) {
+        Logger.debug('debugSource 가 존재하지 않습니다.');
+        return;
+      }
+      postMessageToOutside({
+        type: 'onClick',
+        data: JSON.stringify(debugSource),
+      });
     }
 
     function onMouseEnter(event: MouseEvent) {
@@ -114,7 +119,14 @@ try {
       const fiber = stateNodeFiberMap.get(event.currentTarget);
       invariant(fiber, 'stateNode 와 맵핑된 fiber 가 존재하지 않습니다.');
       const debugSource = findDebugSource(fiber);
-      debugSource && sendFoundDebugSourceToOutside(debugSource);
+      if (!debugSource) {
+        Logger.debug('debugSource 가 존재하지 않습니다.');
+        return;
+      }
+      postMessageToOutside({
+        type: 'onMouseEnter',
+        data: JSON.stringify(debugSource),
+      });
     }
 
     function isIgnorePath(fileName: string) {
@@ -131,34 +143,6 @@ try {
         return findDebugSource(fiber._debugOwner);
       }
       return null;
-    }
-
-    function openIDEByNextLaunchEditor(debugSource: DebugSource) {
-      if (isRedirected) {
-        return;
-      }
-      isRedirected = true;
-
-      const params = new URLSearchParams();
-      params.append('file', debugSource.fileName);
-      params.append('lineNumber', String(debugSource.lineNumber));
-      params.append('column', String(debugSource.columnNumber));
-      const debugUrl = `http://localhost:3000/__nextjs_launch-editor?${params.toString()}`;
-
-      Logger.debug('openIDE', debugSource);
-      Logger.debug(debugUrl);
-
-      self.fetch(debugUrl).catch(error => {
-        Logger.error('There was an issue opening this code in your editor.', error);
-      });
-
-      setTimeout(() => {
-        isRedirected = false;
-      }, 100);
-    }
-
-    function sendFoundDebugSourceToOutside(debugSource: DebugSource) {
-      postMessageToOutside('foundDebugSource', JSON.stringify(debugSource));
     }
 
     function performUnitOfWork(workInProgress: Fiber, callback: (workInProgress: Fiber) => void) {
@@ -217,10 +201,10 @@ try {
       cursorCss?.remove();
     }
 
-    function postMessageToOutside(type: string, data?: string) {
+    const postMessageToOutside: PostMessageToOutside = ({ type, data }) => {
       window.postMessage({ source: 'react-code-finder-from-inject', type, data }, '*');
-    }
-  })('debug');
+    };
+  })('prod');
 } catch (e) {
   console.error(e);
 }

@@ -21,12 +21,8 @@ const Newtab = () => {
         <p>
           Edit <code>src/pages/newtab/Newtab.tsx</code> and save to reload.
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: theme === 'light' && '#0281dc', marginBottom: '10px' }}>
+        <a className="App-link" href="https://reactjs.org" target="_blank" rel="noopener noreferrer">
+          {' '}
           Learn React!
         </a>
         <h6>The color of this paragraph is defined using SASS.</h6>

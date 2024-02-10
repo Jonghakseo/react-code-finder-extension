@@ -2,6 +2,7 @@ import refreshOnUpdate from 'virtual:reload-on-update-in-view';
 import { ignorePathsStorage } from '@src/shared/storages/ignorePathsStorage';
 import { sendMessageToBackgroundAsync } from '@src/shared/chorme/message';
 import { currentDebugSourceStorage } from '@src/shared/storages/currentDebugSourceStorage';
+import { tempDebugSourceStorage } from '@src/shared/storages/tempDebugSourceStorage';
 
 refreshOnUpdate('pages/content/injected');
 
@@ -28,18 +29,25 @@ chrome.runtime.onMessage.addListener(message => {
  * @param event
  */
 window.addEventListener('message', async function (event) {
-  const data = event.data;
-  if (data.source !== 'react-code-finder-from-inject') {
+  if (event.data.source !== 'react-code-finder-from-inject') {
     return;
   }
-  switch (event.data.type) {
-    case 'getInitialState': {
-      const response = await sendMessageToBackgroundAsync({ type: 'getInitialState' });
-      postMessageToInjected('getInitialState', response);
+  const message: MessageFromInjected = event.data;
+  switch (message.type) {
+    case 'getCurrentState': {
+      const response = await sendMessageToBackgroundAsync({ type: 'getCurrentState' });
+      postMessageToInjected('getCurrentState', response);
       break;
     }
-    case 'foundDebugSource': {
-      await currentDebugSourceStorage.set(JSON.parse(data.data));
+    case 'onClick': {
+      sendMessageToBackgroundAsync({ type: 'openSidePanel' });
+      const debugSource: DebugSource = JSON.parse(message.data);
+      await currentDebugSourceStorage.set(debugSource);
+      break;
+    }
+    case 'onMouseEnter': {
+      const debugSource: DebugSource = JSON.parse(message.data);
+      await tempDebugSourceStorage.set(debugSource);
       break;
     }
   }

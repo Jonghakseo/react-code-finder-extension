@@ -10,13 +10,16 @@ export default function useStorage<
 >(storage: Storage) {
   const _data = useSyncExternalStore<Data | null>(storage.subscribe, storage.getSnapshot);
 
+  // @ts-ignore
   if (!storageMap.has(storage)) {
+    // @ts-ignore
     storageMap.set(storage, wrapPromise(storage.get()));
   }
   if (_data !== null) {
+    // @ts-ignore
     storageMap.set(storage, { read: () => _data });
   }
-
+  // @ts-ignore
   return _data ?? (storageMap.get(storage)!.read() as Data);
 }
 
