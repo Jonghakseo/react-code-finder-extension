@@ -34,7 +34,6 @@ window.addEventListener('message', async function (event) {
   }
   switch (event.data.type) {
     case 'getInitialState': {
-      console.log('getInitialState');
       const response = await sendMessageToBackgroundAsync({ type: 'getInitialState' });
       postMessageToInjected('getInitialState', response);
       break;
