@@ -1,197 +1,230 @@
 type LogLevels = 'debug' | 'prod' | 'error';
 
-// Mock Type
-type Fiber = {
-  stateNode?: HTMLElement;
-  type: unknown | string;
-  child: Fiber | null;
-  sibling: Fiber | null;
-  return: Fiber | null;
-  _debugSource: {
-    fileName: string;
-    lineNumber: number;
-    columnNumber: number;
-  } | null;
-  _debugOwner: Fiber | null;
-};
+try {
+  ((logLevel: LogLevels) => {
+    const Logger = {
+      debug: (...args: unknown[]) => logLevel === 'debug' && console.log(...args),
+      prod: (...args: unknown[]) => (logLevel === 'prod' || logLevel === 'debug') && console.log(...args),
+      error: (...args: unknown[]) => console.error(...args),
+    };
+    const activeState = new Proxy(
+      { current: false },
+      {
+        set: function (target, prop, value) {
+          value ? setCustomCursor() : resetCursor();
+          return Reflect.set(target, prop, value);
+        },
+      },
+    );
+    let ignorePathRegexp: string[] = [];
+    let fiberRoot: Root | undefined;
+    let isRedirected = false;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    const devToolsGlobalHook = window.__REACT_DEVTOOLS_GLOBAL_HOOK__;
+    let stateNodeFiberMap = new WeakMap<HTMLElement, Fiber>();
+    let onCommitFiberRootTimout: ReturnType<typeof setTimeout> | null = null;
 
-type Root = {
-  current: Fiber;
-};
+    invariant(devToolsGlobalHook, '__REACT_DEVTOOLS_GLOBAL_HOOK__ 를 찾을 수 없습니다.');
 
-type DebugSource = {
-  fileName: string;
-  lineNumber: number;
-  columnNumber: number;
-};
-
-((logLevel: LogLevels) => {
-  const IGNORE_PATHS = ['components/common', 'frontend/packages'];
-
-  const Logger = {
-    debug: (...args: unknown[]) => {
-      if (logLevel === 'debug') {
-        console.log(...args);
-      }
-    },
-    prod: (...args: unknown[]) => {
-      if (logLevel === 'prod' || logLevel === 'debug') {
-        console.log(...args);
-      }
-    },
-    error: (...args: unknown[]) => {
-      console.error(...args);
-    },
-  };
-
-  const isActivated = { current: false };
-  let isRedirected = false;
-  let isRunning = false;
-
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const devTools = window.__REACT_DEVTOOLS_GLOBAL_HOOK__;
-
-  Logger.debug(devTools, isRunning);
-
-  let nodeSourceMap = new WeakMap();
-
-  let id: ReturnType<typeof setTimeout> = null;
-
-  devTools.getFiberRoots(1).forEach((initialRoot: Root) => {
-    setFindCodeEvent(initialRoot);
-    Logger.prod('next dev code finder on');
-  });
-
-  // 기존 동작을 방해하지 않기 위한 Proxy
-  devTools.onCommitFiberRoot = new Proxy(devTools.onCommitFiberRoot, {
-    apply: function (target, thisArg, argumentsList) {
-      const root = argumentsList.at(1);
-      clearTimeout(id);
-      id = setTimeout(() => {
-        Logger.debug('onCommitFiberRoot', root);
-        setFindCodeEvent(root);
-      }, 300);
-      return Reflect.apply(target, thisArg, argumentsList);
-    },
-  });
-
-  function setFindCodeEvent(root: Root) {
-    nodeSourceMap = new WeakMap();
-    let nextUnitOfWork = root.current.child;
-    while (nextUnitOfWork) {
-      isRunning = true;
-      nextUnitOfWork = performUnitOfWork(nextUnitOfWork, workInProgress => {
-        if (workInProgress.stateNode && typeof workInProgress.type === 'string') {
-          if (nodeSourceMap.has(workInProgress.stateNode)) {
-            return;
-          }
-
-          const debugSource = findDebugSource(workInProgress) as DebugSource | null;
-          nodeSourceMap.set(workInProgress.stateNode, debugSource);
-
-          workInProgress.stateNode.addEventListener('click', event => onClick(event, workInProgress));
-
-          workInProgress.stateNode.addEventListener('mouseenter', () => {
-            Logger.debug(workInProgress, debugSource);
-          });
+    // 기존 동작을 방해하지 않기 위한 Proxy
+    devToolsGlobalHook.onCommitFiberRoot = new Proxy(devToolsGlobalHook.onCommitFiberRoot, {
+      apply: function (target, thisArg, argumentsList) {
+        fiberRoot = argumentsList.at(1);
+        if (onCommitFiberRootTimout) {
+          clearTimeout(onCommitFiberRootTimout);
         }
-      });
-    }
-  }
+        onCommitFiberRootTimout = setTimeout(() => {
+          Logger.prod('onCommitFiberRoot', fiberRoot);
+          fiberRoot && findDebugSourceAndBindClickEvent(fiberRoot);
+        }, 200);
 
-  function onClick(event: MouseEvent, fiber: Fiber) {
-    Logger.debug(fiber, isActivated.current);
-    if (!isActivated.current) {
-      return;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-    const debugSource = nodeSourceMap.get(fiber.stateNode);
-    Logger.debug(debugSource);
-    debugSource && openIDEByNextLaunchEditor(debugSource);
-  }
-
-  window.postMessage({ source: 'next-dev-code-finder-from-inject', type: 'getCurrentState' }, '*');
-
-  window.onmessage = message => {
-    const response = message.data;
-    if (response.source !== 'next-dev-code-finder-to-inject') {
-      return;
-    }
-    switch (response.type) {
-      case 'toggleOn':
-        Logger.debug('toggleOn');
-        isActivated.current = true;
-        break;
-      case 'toggleOff':
-        Logger.debug('toggleOff');
-        isActivated.current = false;
-        break;
-      case 'getCurrentState':
-        Logger.debug('getCurrentState', response.data);
-        isActivated.current = response.data === 'ON';
-        break;
-      default:
-        break;
-    }
-  };
-
-  function findDebugSource(fiber: Fiber): DebugSource | null {
-    if (fiber._debugSource) {
-      const fileName = fiber._debugSource.fileName;
-      if (!IGNORE_PATHS.some(ignorePath => fileName.includes(ignorePath))) {
-        return fiber._debugSource;
-      }
-    }
-    if (fiber._debugOwner) {
-      return findDebugSource(fiber._debugOwner);
-    }
-    return null;
-  }
-
-  function openIDEByNextLaunchEditor(debugSource: DebugSource) {
-    if (isRedirected) {
-      return;
-    }
-    isRedirected = true;
-    Logger.debug('openIDE', debugSource);
-
-    const params = new URLSearchParams();
-    params.append('file', debugSource.fileName);
-    params.append('lineNumber', String(debugSource.lineNumber));
-    params.append('column', String(debugSource.columnNumber));
-    const debugUrl = `http://localhost:3000/__nextjs_launch-editor?${params.toString()}`;
-    Logger.debug(debugUrl);
-    self.fetch(debugUrl).catch(error => {
-      console.error('There was an issue opening this code in your editor.', error);
+        return Reflect.apply(target, thisArg, argumentsList);
+      },
     });
 
-    setTimeout(() => {
-      isRedirected = false;
-    }, 100);
-  }
+    const checkInitialStateInterval = setInterval(() => {
+      Logger.debug('초기 상태 체크');
+      postMessageToOutside('getInitialState');
+    }, 500);
 
-  function performUnitOfWork(workInProgress: Fiber, callback: (workInProgress: Fiber) => void) {
-    // 1. 노드에 대한 작업을 수행
-    callback(workInProgress);
-
-    // 2. 자식 노드로 내려감
-    if (workInProgress.child) {
-      return workInProgress.child;
-    }
-
-    // 3. 자식 노드가 없으면 형제 노드로 이동
-    let currentFiber = workInProgress;
-    while (currentFiber) {
-      if (currentFiber.sibling) {
-        return currentFiber.sibling;
+    window.addEventListener('message', message => {
+      const response = message.data;
+      if (response.source !== 'react-code-finder-to-inject') {
+        return;
       }
-      // 4. 형제 노드가 없으면 부모 노드로 올라가서 다시 형제 노드로 이동
-      currentFiber = currentFiber.return;
+      switch (response.type) {
+        case 'toggleOn':
+          Logger.debug('toggleOn');
+          activeState.current = true;
+          break;
+        case 'toggleOff':
+          Logger.debug('toggleOff');
+          activeState.current = false;
+          break;
+        case 'getInitialState':
+          Logger.debug('getInitialState', response.data);
+          activeState.current = response.data === 'ON';
+          clearInterval(checkInitialStateInterval);
+          break;
+        case 'setIgnorePaths':
+          ignorePathRegexp = response.data.split(',');
+          break;
+      }
+    });
+
+    function findDebugSourceAndBindClickEvent(root: Root) {
+      stateNodeFiberMap = new WeakMap();
+      let nextUnitOfWork = root.current.child;
+      while (nextUnitOfWork) {
+        nextUnitOfWork = performUnitOfWork(nextUnitOfWork, workInProgress => {
+          if (workInProgress.stateNode && typeof workInProgress.type === 'string') {
+            stateNodeFiberMap.set(workInProgress.stateNode, workInProgress);
+            workInProgress.stateNode.addEventListener('click', onClick);
+            workInProgress.stateNode.addEventListener('mouseenter', onMouseEnter);
+          }
+        });
+      }
     }
 
-    // 5. 트리 순회 끝
-    return null;
-  }
-})('prod');
+    function onClick(event: MouseEvent) {
+      Logger.debug(activeState.current);
+      if (!activeState.current) {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      if (!(event.currentTarget instanceof HTMLElement)) {
+        throw Error('event.currentTarget 은 HTMLElement 인스턴스가 아닙니다.');
+      }
+      const fiber = stateNodeFiberMap.get(event.currentTarget);
+      invariant(fiber, 'stateNode 와 맵핑된 fiber 가 존재하지 않습니다.');
+      Logger.debug(fiber);
+      const debugSource = findDebugSource(fiber);
+      debugSource && openIDEByNextLaunchEditor(debugSource);
+    }
+
+    function onMouseEnter(event: MouseEvent) {
+      if (!activeState.current) {
+        return;
+      }
+      if (!(event.currentTarget instanceof HTMLElement)) {
+        throw Error('event.currentTarget 은 HTMLElement 인스턴스가 아닙니다.');
+      }
+      const fiber = stateNodeFiberMap.get(event.currentTarget);
+      invariant(fiber, 'stateNode 와 맵핑된 fiber 가 존재하지 않습니다.');
+      const debugSource = findDebugSource(fiber);
+      debugSource && sendFoundDebugSourceToOutside(debugSource);
+    }
+
+    function isIgnorePath(fileName: string) {
+      return ignorePathRegexp.some(ignoreRegexp => new RegExp(ignoreRegexp).test(fileName));
+    }
+
+    function findDebugSource(fiber: Fiber): DebugSource | null {
+      if (fiber._debugSource) {
+        if (!isIgnorePath(fiber._debugSource.fileName)) {
+          return fiber._debugSource;
+        }
+      }
+      if (fiber._debugOwner) {
+        return findDebugSource(fiber._debugOwner);
+      }
+      return null;
+    }
+
+    function openIDEByNextLaunchEditor(debugSource: DebugSource) {
+      if (isRedirected) {
+        return;
+      }
+      isRedirected = true;
+
+      const params = new URLSearchParams();
+      params.append('file', debugSource.fileName);
+      params.append('lineNumber', String(debugSource.lineNumber));
+      params.append('column', String(debugSource.columnNumber));
+      const debugUrl = `http://localhost:3000/__nextjs_launch-editor?${params.toString()}`;
+
+      Logger.debug('openIDE', debugSource);
+      Logger.debug(debugUrl);
+
+      self.fetch(debugUrl).catch(error => {
+        Logger.error('There was an issue opening this code in your editor.', error);
+      });
+
+      setTimeout(() => {
+        isRedirected = false;
+      }, 100);
+    }
+
+    function sendFoundDebugSourceToOutside(debugSource: DebugSource) {
+      postMessageToOutside('foundDebugSource', JSON.stringify(debugSource));
+    }
+
+    function performUnitOfWork(workInProgress: Fiber, callback: (workInProgress: Fiber) => void) {
+      // 1. 노드에 대한 작업을 수행
+      callback(workInProgress);
+
+      // 2. 자식 노드로 내려감
+      if (workInProgress.child) {
+        return workInProgress.child;
+      }
+
+      // 3. 자식 노드가 없으면 형제 노드로 이동
+      let currentFiber: Fiber | null = workInProgress;
+      while (currentFiber) {
+        if (currentFiber.sibling) {
+          return currentFiber.sibling;
+        }
+        // 4. 형제 노드가 없으면 부모 노드로 올라가서 다시 형제 노드로 이동
+        currentFiber = currentFiber.return;
+      }
+
+      // 5. 트리 순회 끝
+      return null;
+    }
+
+    function invariant<T>(target: T, message: string): asserts target {
+      if (target !== undefined && target !== null) {
+        return;
+      }
+      throw Error('[invariant error] ' + message);
+    }
+
+    const cursorStyleId = 'react-code-finder-cursor-style';
+
+    function getCursorSVG() {
+      return `
+      <svg fill="none" height="24" width="24" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <g fill="#333">
+          <path d="m18.7479 12.8156c-1.7407.0677-3.3126.6887-4.1535 1.5298-.3905.3906-1.0237.3906-1.4142.0001-.3906-.3904-.3907-1.0236-.0002-1.4142 1.2974-1.2976 3.4088-2.0332 5.4901-2.1142 2.0949-.0815 4.382.4921 5.9837 2.0941.3904.3905.3904 1.0237-.0002 1.4142-.3905.3905-1.0237.3904-1.4142-.0001-1.091-1.0913-2.7645-1.5769-4.4915-1.5097z"/><path clip-rule="evenodd" d="m27.3841 28.9355c-2.2634 1.912-5.1892 3.0645-8.3841 3.0645-7.1797 0-13-5.8203-13-13s5.8203-13 13-13 13 5.8203 13 13c0 3.1949-1.1525 6.1207-3.0645 8.3841l2.2087-.3841 10.2836 10.2837c.7629.7629.7629 1.9998 0 2.7627l-1.3814 1.3814c-.7629.7629-1.9998.7629-2.7627 0l-10.2837-10.2836zm2.6159-9.9355c0 6.0751-4.9249 11-11 11s-11-4.9249-11-11 4.9249-11 11-11 11 4.9249 11 11zm7.2487 16.933-6.7847-6.7847-1.1208.1949-.1949 1.1208 6.8047 6.8047zm.1187 2.7501 1.2976 1.2977 1.3158-1.3158-1.3177-1.3176z" fill-rule="evenodd"/>
+        </g>
+      </svg>
+    `;
+    }
+
+    function setCustomCursor() {
+      const prevCursorCss = document.getElementById(cursorStyleId);
+      prevCursorCss?.remove();
+
+      const blob = new Blob([getCursorSVG()], { type: 'image/svg+xml' });
+      const URL = window.URL.createObjectURL(blob);
+      const cssString = ` * { cursor: url(${URL}) ${2} ${2}, auto !important; }`;
+      const style = document.createElement('style');
+      style.id = cursorStyleId;
+      style.innerHTML = cssString;
+      document.head.appendChild(style);
+    }
+
+    function resetCursor() {
+      const cursorCss = document.getElementById(cursorStyleId);
+      cursorCss?.remove();
+    }
+
+    function postMessageToOutside(type: string, data?: string) {
+      window.postMessage({ source: 'react-code-finder-from-inject', type, data }, '*');
+    }
+  })('debug');
+} catch (e) {
+  console.error(e);
+}

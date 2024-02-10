@@ -67,7 +67,7 @@ export default defineConfig({
         entryFileNames: 'src/pages/[name]/index.js',
         chunkFileNames: 'assets/js/[name].js',
         assetFileNames: assetInfo => {
-          const { name } = path.parse(assetInfo.name);
+          const { name } = path.parse(assetInfo.name!);
           const assetFileName = name === 'contentStyle' ? `${name}${getCacheInvalidationKey()}` : name;
           return `assets/[ext]/${assetFileName}.chunk.[ext]`;
         },

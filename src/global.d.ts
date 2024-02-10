@@ -29,3 +29,28 @@ declare module '*.json' {
   const content: string;
   export default content;
 }
+
+// Mock Type
+declare type Fiber = {
+  stateNode?: HTMLElement;
+  type: unknown | string;
+  child: Fiber | null;
+  sibling: Fiber | null;
+  return: Fiber | null;
+  _debugSource: {
+    fileName: string;
+    lineNumber: number;
+    columnNumber: number;
+  } | null;
+  _debugOwner: Fiber | null;
+};
+
+declare type Root = {
+  current: Fiber;
+};
+
+declare type DebugSource = {
+  fileName: string;
+  lineNumber: number;
+  columnNumber: number;
+};
