@@ -25,6 +25,7 @@ import { getSource } from '@src/shared/cli/getSource';
 import { editSource } from '@src/shared/cli/editSource';
 import { currentDebugSourceStorage } from '@src/shared/storages/currentDebugSourceStorage';
 import { tempDebugSourceStorage } from '@src/shared/storages/tempDebugSourceStorage';
+import { ExternalLinkIcon } from '@chakra-ui/icons';
 
 const SidePanel = () => {
   const monacoEl = useRef(null);
