@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import '@pages/options/Options.css';
 import { ignorePathsStorage } from '@src/shared/storages/ignorePathsStorage';
 import useStorage from '@src/shared/hooks/useStorage';
+import { Button, Grid, Heading, Textarea } from '@chakra-ui/react';
 
 const Options: React.FC = () => {
   const ignorePaths = useStorage(ignorePathsStorage);
@@ -24,23 +25,12 @@ const Options: React.FC = () => {
   };
 
   return (
-    <form className="container" onSubmit={onSubmit}>
-      <label>
-        <span
-          style={{
-            whiteSpace: 'pre-wrap',
-          }}>{`Enter your ignore file path as a regular expression\n(separate multiple values with '\\n')`}</span>
-        <textarea
-          style={{
-            marginTop: '12px',
-            width: '400px',
-            height: '200px',
-          }}
-          value={ignoreRegexp}
-          onChange={onChange}
-        />
-      </label>
-      <button>SAVE</button>
+    <form onSubmit={onSubmit}>
+      <Grid gap={4} p="40px" m="auto" alignItems="center" justifyContent="center">
+        <Heading size="md">{`Enter your ignore file path as a regular expression\n(separate multiple values with '\\n')`}</Heading>
+        <Textarea value={ignoreRegexp} onChange={onChange} />
+        <Button type="submit">SAVE</Button>
+      </Grid>
     </form>
   );
 };
