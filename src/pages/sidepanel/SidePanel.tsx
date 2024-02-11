@@ -120,7 +120,7 @@ const SidePanel = () => {
         column: currentDebugSourceWithSourceCode.columnNumber || 1,
       });
     }
-  }, [currentDebugSourceWithSourceCode?.fileName]);
+  }, [currentDebugSourceWithSourceCode?.fileName, currentDebugSourceWithSourceCode?.lineNumber]);
 
   useEffect(() => {
     const handleSave = (e: KeyboardEvent) => {
