@@ -4,7 +4,7 @@ type CurrentDebugSourceStorage = BaseStorage<DebugSource | null> & {
   onChange: (callback: (value: DebugSource | null) => void) => () => void;
 };
 
-const storage = createStorage<DebugSource | null>('current-debug-source-key', null, {
+const storage = createStorage<DebugSource | null>('current-debug-source', null, {
   storageType: StorageType.Local,
   liveUpdate: true,
 });
