@@ -178,7 +178,9 @@ const SidePanel = () => {
 
       <Grid gap={2}>
         <Link onClick={openEditor} isExternal>
-          <Heading size="md">{getSourceTitle(currentDebugSourceWithSourceCode)}</Heading>
+          <Heading size="md">
+            {getSourceTitle(currentDebugSourceWithSourceCode)} <ExternalLinkIcon ml={2} />
+          </Heading>
         </Link>
         <Flex gap="4px" h="18px" alignItems="end">
           <Kbd>CMD</Kbd> or <Kbd>CMD</Kbd> + <Kbd>S</Kbd>
