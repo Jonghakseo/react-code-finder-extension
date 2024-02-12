@@ -154,9 +154,6 @@ const SidePanel = () => {
 
   return (
     <Grid className="App" gap={2}>
-      <Badge width={'fit-content'} colorScheme={error ? 'red' : 'blue'}>
-        {error ? error.message : 'connected'}
-      </Badge>
       <Flex alignItems="center" gap={2}>
         <Code colorScheme="yellow">{`npx react-code-finder-server -p ${portNumber}`}</Code>
         <Text>port</Text>
@@ -173,6 +170,9 @@ const SidePanel = () => {
             <NumberDecrementStepper />
           </NumberInputStepper>
         </NumberInput>
+        <Badge width={'fit-content'} colorScheme={error ? 'red' : 'blue'}>
+          {error ? error.message : 'connected'}
+        </Badge>
       </Flex>
 
       <FormLabel>
