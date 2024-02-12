@@ -1,11 +1,10 @@
-import React, { Suspense, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { editor } from 'monaco-editor';
 import '@pages/sidepanel/SidePanel.css';
 import useStorage from '@src/shared/hooks/useStorage';
 import {
   Code,
   Flex,
-  FormLabel,
   Grid,
   Heading,
   Link,
@@ -19,6 +18,7 @@ import {
   Select,
   HStack,
   Text,
+  useToast,
 } from '@chakra-ui/react';
 import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
@@ -29,55 +29,64 @@ import { currentDebugSourceStorage } from '@src/shared/storages/currentDebugSour
 import { tempDebugSourceStorage } from '@src/shared/storages/tempDebugSourceStorage';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 
-chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
-
 const SidePanel = () => {
   const monacoEl = useRef(null);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
-  const currentDebugSources = useStorage(currentDebugSourceStorage) ?? [];
+  const currentDebugSources = useStorage(currentDebugSourceStorage);
   const [currentDebugSourcesIndex, setCurrentDebugSourcesIndex] = useState<number>(0);
   const [currentDebugSourceWithSourceCode, setCurrentDebugSourceWithSourceCode] =
     useState<DebugSourceWithSourceCode | null>(null);
   const [portNumber, setPortNumber] = useState(3010);
-  const [isSaved, setIsSaved] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const toast = useToast();
+  const [networkError, setNetworkError] = useState<Error | null>(null);
 
   async function fetchSourceCode(port: number, debugSource: DebugSource) {
     try {
       const res = await getSource(port, debugSource.fileName);
       const { source } = await res.json();
-      setCurrentDebugSourceWithSourceCode({
-        ...debugSource,
-        sourceCode: source,
-      });
-      setError(null);
+      setCurrentDebugSourceWithSourceCode({ ...debugSource, sourceCode: source });
+      setNetworkError(null);
     } catch (e) {
       if (e instanceof Error) {
-        setError(e);
+        setNetworkError(e);
       }
     }
   }
 
-  const saveSourceCode = async (port: number, fileName: string) => {
+  const saveSourceCode = useCallback(async () => {
     if (!currentDebugSourceWithSourceCode) {
       return;
     }
     const source = editorRef.current?.getValue();
     if (source) {
       try {
-        await editSource(port, fileName, source);
-        setError(null);
-        setIsSaved(true);
-        setTimeout(() => {
-          setIsSaved(false);
-        }, 1000);
+        await editSource(portNumber, currentDebugSourceWithSourceCode.fileName, source);
+        setNetworkError(null);
+        toast({ title: 'Saved!', duration: 1500, position: 'top-right' });
       } catch (e) {
         if (e instanceof Error) {
-          setError(e);
+          setNetworkError(e);
         }
       }
     }
-  };
+  }, [currentDebugSourceWithSourceCode, portNumber, toast]);
+
+  const openEditor = useCallback(async () => {
+    if (!currentDebugSourceWithSourceCode) {
+      return;
+    }
+    try {
+      await openIDE(portNumber, currentDebugSourceWithSourceCode);
+      setNetworkError(null);
+    } catch (e) {
+      if (e instanceof Error) {
+        setNetworkError(e);
+      }
+    }
+  }, [portNumber, currentDebugSourceWithSourceCode]);
+
+  useKeyDownEffect(withCtrl('s'), saveSourceCode, [saveSourceCode]);
+  useKeyDownEffect(withCtrl('o'), openEditor, [openEditor]);
 
   useEffect(() => {
     const firstSource = currentDebugSources.at(0);
@@ -97,9 +106,6 @@ const SidePanel = () => {
   }, [portNumber, currentDebugSourcesIndex]);
 
   useEffect(() => {
-    if (!monacoEl.current) {
-      return;
-    }
     editorRef.current = editor.create(monacoEl.current!, {
       value: currentDebugSourceWithSourceCode?.sourceCode,
       language: 'typescript',
@@ -116,64 +122,18 @@ const SidePanel = () => {
   useEffect(() => {
     if (editorRef.current && currentDebugSourceWithSourceCode) {
       editorRef.current.setValue(currentDebugSourceWithSourceCode.sourceCode);
-      editorRef.current?.setSelection({
-        startLineNumber: currentDebugSourceWithSourceCode.lineNumber || 1,
+      editorRef.current.setSelection({
+        startLineNumber: currentDebugSourceWithSourceCode.lineNumber,
+        endLineNumber: currentDebugSourceWithSourceCode.lineNumber,
         startColumn: 0,
-        endLineNumber: currentDebugSourceWithSourceCode.lineNumber || 1,
         endColumn: 999,
       });
       editorRef.current.revealPositionInCenter({
-        lineNumber: currentDebugSourceWithSourceCode.lineNumber || 1,
-        column: currentDebugSourceWithSourceCode.columnNumber || 1,
+        lineNumber: currentDebugSourceWithSourceCode.lineNumber,
+        column: currentDebugSourceWithSourceCode.columnNumber,
       });
     }
   }, [currentDebugSourceWithSourceCode]);
-
-  useEffect(() => {
-    const handleSave = (e: KeyboardEvent) => {
-      if (!currentDebugSourceWithSourceCode) {
-        return;
-      }
-      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
-        e.preventDefault();
-        void saveSourceCode(portNumber, currentDebugSourceWithSourceCode.fileName);
-      }
-    };
-    window.addEventListener('keydown', handleSave);
-    return () => {
-      window.removeEventListener('keydown', handleSave);
-    };
-  }, [portNumber, currentDebugSourceWithSourceCode?.fileName]);
-
-  useEffect(() => {
-    const handleSave = (e: KeyboardEvent) => {
-      if (!currentDebugSourceWithSourceCode) {
-        return;
-      }
-      if ((e.metaKey || e.ctrlKey) && e.key === 'o') {
-        e.preventDefault();
-        void openEditor();
-      }
-    };
-    window.addEventListener('keydown', handleSave);
-    return () => {
-      window.removeEventListener('keydown', handleSave);
-    };
-  }, [portNumber, currentDebugSourceWithSourceCode?.fileName]);
-
-  const openEditor = async () => {
-    if (!currentDebugSourceWithSourceCode) {
-      return;
-    }
-    try {
-      await openIDE(portNumber, currentDebugSourceWithSourceCode);
-      setError(null);
-    } catch (e) {
-      if (e instanceof Error) {
-        setError(e);
-      }
-    }
-  };
 
   return (
     <Grid className="App" gap={2}>
@@ -192,8 +152,8 @@ const SidePanel = () => {
             <NumberDecrementStepper />
           </NumberInputStepper>
         </NumberInput>
-        <Badge width={'fit-content'} colorScheme={error ? 'red' : 'blue'}>
-          {error ? error.message : 'connected'}
+        <Badge width={'fit-content'} colorScheme={networkError ? 'red' : 'blue'}>
+          {networkError ? networkError.message : 'connected'}
         </Badge>
       </Flex>
 
@@ -215,19 +175,16 @@ const SidePanel = () => {
             </Heading>
           </Link>
         </HStack>
-        <Flex gap="4px" h="18px" alignItems="end">
-          <Text fontWeight="bold">SAVE:</Text>
-          <Kbd>CMD</Kbd> or <Kbd>CMD</Kbd> + <Kbd>S</Kbd>
-          {isSaved && (
-            <Badge ml={1} colorScheme="blue" variant="solid" fontSize="12px">
-              saved!
-            </Badge>
-          )}
-        </Flex>
-        <Flex gap="4px" h="18px" alignItems="end">
-          <Text fontWeight="bold">OPEN:</Text>
-          <Kbd>CMD</Kbd> or <Kbd>CMD</Kbd> + <Kbd>O</Kbd>
-        </Flex>
+        <HStack>
+          <Flex gap="4px" h="18px" alignItems="end">
+            <Text fontWeight="bold">SAVE:</Text>
+            <Kbd>CMD</Kbd> or <Kbd>CMD</Kbd> + <Kbd>S</Kbd>
+          </Flex>
+          <Flex gap="4px" h="18px" alignItems="end">
+            <Text fontWeight="bold">OPEN:</Text>
+            <Kbd>CMD</Kbd> or <Kbd>CMD</Kbd> + <Kbd>O</Kbd>
+          </Flex>
+        </HStack>
         <div
           style={{
             borderRadius: '12px',
@@ -242,12 +199,26 @@ const SidePanel = () => {
 
 function FocusedSourceInfo() {
   const tempDebugSource = useStorage(tempDebugSourceStorage);
-  return (
-    <FormLabel>
-      Focused on... <br />
-      <Code>{getSourceTitle(tempDebugSource)}</Code>
-    </FormLabel>
-  );
+  return <Text>{getSourceTitle(tempDebugSource)}</Text>;
+}
+
+function useKeyDownEffect(checkKey: (event: KeyboardEvent) => boolean, callback: () => unknown, deps: unknown[]) {
+  useEffect(() => {
+    const handleSave = (e: KeyboardEvent) => {
+      if (checkKey(e)) {
+        e.preventDefault();
+        callback();
+      }
+    };
+    window.addEventListener('keydown', handleSave);
+    return () => {
+      window.removeEventListener('keydown', handleSave);
+    };
+  }, deps);
+}
+
+function withCtrl(key: string) {
+  return (e: KeyboardEvent): boolean => (e.metaKey || e.ctrlKey) && e.key === key;
 }
 
 function getSourceTitle(debugSource: DebugSource | null) {

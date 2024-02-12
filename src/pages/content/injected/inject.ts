@@ -1,5 +1,14 @@
 type LogLevels = 'debug' | 'prod' | 'error';
 
+type Config = {
+  injectionConfig: {
+    showCustomCursor: boolean;
+    showHoverComponentFrame: boolean;
+    showHoverComponentName: boolean;
+    frameColor: string;
+  };
+};
+
 (async (logLevel: LogLevels) => {
   const Logger = {
     debug: (...args: unknown[]) => logLevel === 'debug' && console.log(...args),
@@ -29,21 +38,29 @@ type LogLevels = 'debug' | 'prod' | 'error';
     });
   }
 
+  let config: Config | undefined;
+
   const activeState = new Proxy(
     { current: false },
     {
       set: function (target, prop, value) {
-        if (value) {
-          setCustomFocusStyle();
-          // setCustomCursor();
+        if (config?.injectionConfig.showCustomCursor && value) {
+          setCustomCursor();
         } else {
-          resetFocusStyle();
-          // resetCursor();
+          resetCursor();
+        }
+        if (config?.injectionConfig.showHoverComponentFrame && value) {
+          setHoverComponentFrameStyle(config?.injectionConfig.showHoverComponentName);
+        } else {
+          resetHoverComponentFrameStyle();
         }
         return Reflect.set(target, prop, value);
       },
     },
   );
+
+  window.addEventListener('resize', () => resetHoverComponentFrameStyle());
+  window.addEventListener('blur', () => resetHoverComponentFrameStyle());
 
   let ignorePathRegexp: string[] = [];
   let fiberRoot: Root | undefined;
@@ -204,6 +221,24 @@ type LogLevels = 'debug' | 'prod' | 'error';
     return null;
   }
 
+  function getInvertBlackOrWhite(hex: string) {
+    if (hex.indexOf('#') === 0) {
+      hex = hex.slice(1);
+    }
+    // convert 3-digit hex to 6-digits.
+    if (hex.length === 3) {
+      hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+    }
+    if (hex.length !== 6) {
+      return '#FFFFFF';
+    }
+    const r = parseInt(hex.slice(0, 2), 16),
+      g = parseInt(hex.slice(2, 4), 16),
+      b = parseInt(hex.slice(4, 6), 16);
+    // https://stackoverflow.com/a/3943023/112731
+    return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? '#000000' : '#FFFFFF';
+  }
+
   /**
    * Cursor
    */
@@ -253,30 +288,61 @@ type LogLevels = 'debug' | 'prod' | 'error';
 
   const focusStyleId = 'react-code-finder-focus-style';
   const focusBoxId = 'react-code-finder-focus-box';
-  function setCustomFocusStyle() {
-    const style = `
-        #${focusBoxId} {
-            position: absolute !important;
-            z-index: 999999 !important;
-            border: 1px solid #1fd3ee !important;
-            border-radius: 2px !important;
-            pointer-events: none !important;
-        }
+  function setHoverComponentFrameStyle(withName: boolean) {
+    const frameColor = config?.injectionConfig.frameColor || '#000000';
+    const boxStyle = `
+      #${focusBoxId} {
+        position: absolute !important;
+        z-index: 999999 !important;
+        border: 1px solid ${frameColor} !important;
+        border-radius: 2px !important;
+        pointer-events: none !important;
+      }
     `;
-    if (!document.getElementById(focusStyleId)) {
+    const boxWithNameStyle = `
+      #${focusBoxId} {
+        position: absolute !important;
+        z-index: 999999 !important;
+        border: 1px solid ${frameColor} !important;
+        border-radius: 2px 2px 2px 0 !important;
+        pointer-events: none !important;
+      }
+      #${focusBoxId}:after {
+        position: absolute;
+        z-index: 999999;
+        content: attr(data-react-code-finder-source-file);
+        top: 100%;
+        left: -1px;
+        font-size: 0.725rem;
+        line-height: 1.2;
+        padding: 0 0.5rem;
+        background-color: ${frameColor};
+        color: ${getInvertBlackOrWhite(frameColor)};
+        pointer-events: none;
+        border-radius: 0 0 2px 2px;
+      }
+    `;
+    const focusCss = (() => {
+      const prevFocusCss = document.getElementById(focusStyleId);
+      if (prevFocusCss) {
+        return prevFocusCss;
+      }
       const styleScript = document.createElement('style');
       styleScript.id = focusStyleId;
-      styleScript.innerHTML = style;
       document.head.appendChild(styleScript);
-    }
-    if (!document.getElementById(focusBoxId)) {
+      return styleScript;
+    })();
+    focusCss.innerHTML = withName ? boxWithNameStyle : boxStyle;
+
+    const focusBox = document.getElementById(focusBoxId);
+    if (!focusBox) {
       const focusBox = document.createElement('div');
       focusBox.id = focusBoxId;
       document.body.appendChild(focusBox);
     }
   }
 
-  function resetFocusStyle() {
+  function resetHoverComponentFrameStyle() {
     const focusCss = document.getElementById(focusStyleId);
     focusCss?.remove();
     const focusBox = document.getElementById(focusBoxId);
@@ -289,6 +355,12 @@ type LogLevels = 'debug' | 'prod' | 'error';
     if (!focusBox) {
       return;
     }
+    const fiber = stateNodeFiberMap.get(element);
+    if (!fiber) {
+      return;
+    }
+    const debugSources = findDebugSources(fiber);
+    focusBox.setAttribute('data-react-code-finder-source-file', debugSources.at(0)?.fileName?.split('/').at(-1) || '');
     focusBox.animate(
       [
         {
@@ -346,6 +418,11 @@ type LogLevels = 'debug' | 'prod' | 'error';
       case 'getCurrentState': {
         Logger.debug('getCurrentState', message.data);
         activeState.current = message.data === 'ON';
+        break;
+      }
+      case 'setConfig': {
+        Logger.debug('setConfig', message.data);
+        config = JSON.parse(message.data);
         break;
       }
       case 'setIgnorePaths':

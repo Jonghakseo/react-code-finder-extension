@@ -41,7 +41,7 @@ const initialConfig: EditorConfig = {
   },
 };
 
-const storage = createStorage<EditorConfig>('current-debug-source', initialConfig, {
+const storage = createStorage<EditorConfig>('editor-config-source', initialConfig, {
   storageType: StorageType.Local,
   liveUpdate: true,
 });

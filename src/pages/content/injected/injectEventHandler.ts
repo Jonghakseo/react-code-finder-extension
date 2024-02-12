@@ -3,6 +3,7 @@ import { ignorePathsStorage } from '@src/shared/storages/ignorePathsStorage';
 import { sendMessageToBackgroundAsync } from '@src/shared/chorme/message';
 import { currentDebugSourceStorage } from '@src/shared/storages/currentDebugSourceStorage';
 import { tempDebugSourceStorage } from '@src/shared/storages/tempDebugSourceStorage';
+import { injectionConfigStorage } from '@src/shared/storages/injectionConfigStorage';
 
 refreshOnUpdate('pages/content/injected');
 
@@ -58,6 +59,13 @@ ignorePathsStorage.get().then(ignorePaths => {
 });
 ignorePathsStorage.onChange(ignorePaths => {
   postMessageToInjected('setIgnorePaths', ignorePaths.join(','));
+});
+
+injectionConfigStorage.get().then(injectionConfig => {
+  postMessageToInjected('setConfig', JSON.stringify({ injectionConfig }));
+});
+injectionConfigStorage.onChange(injectionConfig => {
+  postMessageToInjected('setConfig', JSON.stringify({ injectionConfig }));
 });
 
 export {};

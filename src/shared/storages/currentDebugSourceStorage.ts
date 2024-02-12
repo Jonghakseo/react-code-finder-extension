@@ -5,9 +5,8 @@ type CurrentDebugSourceStorage = BaseStorage<DebugSource[]> & {
 };
 
 const storage = createStorage<DebugSource[]>('current-debug-source', [], {
-  storageType: StorageType.Session,
+  storageType: StorageType.Local,
   liveUpdate: true,
-  sessionAccessForContentScripts: true,
 });
 
 export const currentDebugSourceStorage: CurrentDebugSourceStorage = {

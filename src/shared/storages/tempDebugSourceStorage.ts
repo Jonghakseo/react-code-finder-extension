@@ -5,9 +5,8 @@ type TempDebugSourceStorage = BaseStorage<DebugSource | null> & {
 };
 
 const storage = createStorage<DebugSource | null>('temp-debug-source', null, {
-  storageType: StorageType.Session,
+  storageType: StorageType.Local,
   liveUpdate: true,
-  sessionAccessForContentScripts: true,
 });
 
 export const tempDebugSourceStorage: TempDebugSourceStorage = {

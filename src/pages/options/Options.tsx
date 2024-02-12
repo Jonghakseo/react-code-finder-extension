@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import '@pages/options/Options.css';
 import { ignorePathsStorage } from '@src/shared/storages/ignorePathsStorage';
+import { injectionConfigStorage } from '@src/shared/storages/injectionConfigStorage';
 import useStorage from '@src/shared/hooks/useStorage';
-import { Button, Grid, Heading, Textarea } from '@chakra-ui/react';
+import { Button, Flex, FormLabel, Grid, Heading, Input, Switch, Textarea } from '@chakra-ui/react';
 
 const Options: React.FC = () => {
   const ignorePaths = useStorage(ignorePathsStorage);
+  const injectConfig = useStorage(injectionConfigStorage);
+  const [showCustomCursor, setShowCustomCursor] = useState<boolean>(injectConfig.showCustomCursor);
+  const [showHoverComponentFrame, setShowHoverComponentFrame] = useState<boolean>(injectConfig.showHoverComponentFrame);
+  const [showHoverComponentName, setShowHoverComponentName] = useState<boolean>(injectConfig.showHoverComponentName);
+  const [frameColor, setFrameColor] = useState<string>(injectConfig.frameColor);
+
   const [ignoreRegexp, setIgnoreRegexp] = useState<string>('');
 
   useEffect(() => {
@@ -21,14 +28,52 @@ const Options: React.FC = () => {
     e.preventDefault();
     const updatedPaths = ignoreRegexp.split('\n').map(v => v.trim());
     await ignorePathsStorage.set(updatedPaths);
-    alert('SAVED!\n' + updatedPaths.join('\n'));
+    await injectionConfigStorage.set({
+      showCustomCursor,
+      showHoverComponentFrame,
+      showHoverComponentName,
+      frameColor,
+    });
+    alert('SAVED!');
   };
-
   return (
     <form onSubmit={onSubmit}>
       <Grid gap={4} p="40px" m="auto" alignItems="center" justifyContent="center">
         <Heading size="md">{`Enter your ignore file path as a regular expression\n(separate multiple values with '\\n')`}</Heading>
         <Textarea value={ignoreRegexp} onChange={onChange} />
+        <Heading size="md">Injection Script Config</Heading>
+        <Flex flexDirection="column" gap={2}>
+          <FormLabel display="flex" justifyContent="space-between">
+            Show Custom Cursor
+            <Switch isChecked={showCustomCursor} onChange={() => setShowCustomCursor(!showCustomCursor)} />
+          </FormLabel>
+          <FormLabel display="flex" justifyContent="space-between">
+            Show Hover Component Frame
+            <Switch
+              isChecked={showHoverComponentFrame}
+              onChange={() => setShowHoverComponentFrame(!showHoverComponentFrame)}
+            />
+          </FormLabel>
+          <FormLabel display="flex" justifyContent="space-between">
+            Show Hover Component Name
+            <Switch
+              disabled={!showHoverComponentFrame}
+              isChecked={showHoverComponentName}
+              onChange={() => setShowHoverComponentName(!showHoverComponentName)}
+            />
+          </FormLabel>
+          <FormLabel display="flex" justifyContent="space-between">
+            Show Hover Component Name
+            <Input
+              size="xs"
+              width="70px"
+              disabled={!showHoverComponentFrame}
+              type="color"
+              value={frameColor}
+              onChange={event => setFrameColor(event.currentTarget.value)}
+            />
+          </FormLabel>
+        </Flex>
         <Button type="submit">SAVE</Button>
       </Grid>
     </form>
