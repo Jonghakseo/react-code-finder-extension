@@ -15,7 +15,6 @@ refreshOnUpdate('pages/sidepanel');
 // @ts-ignore
 self.MonacoEnvironment = {
   getWorker(_: never, label: string) {
-    console.log('label', label);
     if (label === 'css' || label === 'scss' || label === 'less') {
       return new cssWorker();
     }
@@ -34,6 +33,7 @@ languages.typescript.typescriptDefaults.setCompilerOptions({
   allowNonTsExtensions: true,
   moduleResolution: languages.typescript.ModuleResolutionKind.NodeJs,
   module: languages.typescript.ModuleKind.CommonJS,
+  lib: ['dom'],
   noEmit: true,
   esModuleInterop: true,
   strict: false,
@@ -46,7 +46,9 @@ languages.typescript.typescriptDefaults.setCompilerOptions({
 languages.typescript.typescriptDefaults.setDiagnosticsOptions({
   noSemanticValidation: false,
   noSyntaxValidation: false,
-  diagnosticCodesToIgnore: [8016, 8010, 8008],
+  diagnosticCodesToIgnore: [
+    8002, 8003, 8004, 8005, 8006, 8007, 8008, 8009, 8010, 8011, 8012, 8013, 8014, 8015, 8016, 8017, 8019,
+  ],
 });
 
 function init() {

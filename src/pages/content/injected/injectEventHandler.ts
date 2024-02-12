@@ -39,13 +39,13 @@ window.addEventListener('message', async function (event) {
       postMessageToInjected('getCurrentState', response);
       break;
     }
-    case 'onClick': {
+    case 'setCurrentDebugSources': {
       sendMessageToBackgroundAsync({ type: 'openSidePanel' });
-      const debugSource: DebugSource = JSON.parse(message.data);
-      await currentDebugSourceStorage.set(debugSource);
+      const debugSources: DebugSource[] = JSON.parse(message.data);
+      await currentDebugSourceStorage.set(debugSources);
       break;
     }
-    case 'onMouseEnter': {
+    case 'setTempDebugSource': {
       const debugSource: DebugSource = JSON.parse(message.data);
       await tempDebugSourceStorage.set(debugSource);
       break;

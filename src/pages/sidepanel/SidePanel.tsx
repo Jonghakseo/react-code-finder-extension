@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { editor } from 'monaco-editor';
 import '@pages/sidepanel/SidePanel.css';
 import useStorage from '@src/shared/hooks/useStorage';
@@ -11,12 +11,14 @@ import {
   Link,
   NumberInput,
   NumberInputField,
-  Text,
   Kbd,
   Badge,
   NumberDecrementStepper,
   NumberIncrementStepper,
   NumberInputStepper,
+  Select,
+  HStack,
+  Text,
 } from '@chakra-ui/react';
 import withSuspense from '@src/shared/hoc/withSuspense';
 import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
@@ -27,13 +29,15 @@ import { currentDebugSourceStorage } from '@src/shared/storages/currentDebugSour
 import { tempDebugSourceStorage } from '@src/shared/storages/tempDebugSourceStorage';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 
+chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' });
+
 const SidePanel = () => {
   const monacoEl = useRef(null);
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
-  const currentDebugSource = useStorage(currentDebugSourceStorage);
+  const currentDebugSources = useStorage(currentDebugSourceStorage) ?? [];
+  const [currentDebugSourcesIndex, setCurrentDebugSourcesIndex] = useState<number>(0);
   const [currentDebugSourceWithSourceCode, setCurrentDebugSourceWithSourceCode] =
     useState<DebugSourceWithSourceCode | null>(null);
-  const tempDebugSource = useStorage(tempDebugSourceStorage);
   const [portNumber, setPortNumber] = useState(3010);
   const [isSaved, setIsSaved] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -76,18 +80,21 @@ const SidePanel = () => {
   };
 
   useEffect(() => {
-    if (!currentDebugSource) {
+    const firstSource = currentDebugSources.at(0);
+    if (!firstSource) {
       return;
     }
-    void fetchSourceCode(portNumber, currentDebugSource);
-    const id = setInterval(() => {
-      void fetchSourceCode(portNumber, currentDebugSource);
-    }, 2000);
+    void fetchSourceCode(portNumber, firstSource);
+    setCurrentDebugSourcesIndex(0);
+  }, [currentDebugSources]);
 
-    return () => {
-      clearInterval(id);
-    };
-  }, [portNumber, currentDebugSource?.fileName, currentDebugSource?.lineNumber]);
+  useEffect(() => {
+    const currentSource = currentDebugSources.at(currentDebugSourcesIndex);
+    if (!currentSource) {
+      return;
+    }
+    void fetchSourceCode(portNumber, currentSource);
+  }, [portNumber, currentDebugSourcesIndex]);
 
   useEffect(() => {
     if (!monacoEl.current) {
@@ -120,7 +127,7 @@ const SidePanel = () => {
         column: currentDebugSourceWithSourceCode.columnNumber || 1,
       });
     }
-  }, [currentDebugSourceWithSourceCode?.fileName, currentDebugSourceWithSourceCode?.lineNumber]);
+  }, [currentDebugSourceWithSourceCode]);
 
   useEffect(() => {
     const handleSave = (e: KeyboardEvent) => {
@@ -129,7 +136,23 @@ const SidePanel = () => {
       }
       if ((e.metaKey || e.ctrlKey) && e.key === 's') {
         e.preventDefault();
-        saveSourceCode(portNumber, currentDebugSourceWithSourceCode.fileName);
+        void saveSourceCode(portNumber, currentDebugSourceWithSourceCode.fileName);
+      }
+    };
+    window.addEventListener('keydown', handleSave);
+    return () => {
+      window.removeEventListener('keydown', handleSave);
+    };
+  }, [portNumber, currentDebugSourceWithSourceCode?.fileName]);
+
+  useEffect(() => {
+    const handleSave = (e: KeyboardEvent) => {
+      if (!currentDebugSourceWithSourceCode) {
+        return;
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === 'o') {
+        e.preventDefault();
+        void openEditor();
       }
     };
     window.addEventListener('keydown', handleSave);
@@ -156,7 +179,6 @@ const SidePanel = () => {
     <Grid className="App" gap={2}>
       <Flex alignItems="center" gap={2}>
         <Code colorScheme="yellow">{`npx react-code-finder-server -p ${portNumber}`}</Code>
-        <Text>port</Text>
         <NumberInput
           size="sm"
           width={'100px'}
@@ -175,23 +197,36 @@ const SidePanel = () => {
         </Badge>
       </Flex>
 
-      <FormLabel>
-        Next target is... <Code>{getSourceTitle(tempDebugSource)}</Code>
-      </FormLabel>
-
+      <Suspense>
+        <FocusedSourceInfo />
+      </Suspense>
       <Grid gap={2}>
-        <Link onClick={openEditor} isExternal>
-          <Heading size="md">
-            {getSourceTitle(currentDebugSourceWithSourceCode)} <ExternalLinkIcon ml={2} />
-          </Heading>
-        </Link>
+        <HStack gap={2}>
+          <Select size="md" onChange={event => setCurrentDebugSourcesIndex(Number(event.currentTarget.value))}>
+            {currentDebugSources.map((source, index) => (
+              <option key={source.fileName} value={index} selected={currentDebugSourcesIndex === index}>
+                {getSourceTitle(source)}
+              </option>
+            ))}
+          </Select>
+          <Link onClick={openEditor} isExternal>
+            <Heading size="md">
+              <ExternalLinkIcon ml={2} mr={4} />
+            </Heading>
+          </Link>
+        </HStack>
         <Flex gap="4px" h="18px" alignItems="end">
+          <Text fontWeight="bold">SAVE:</Text>
           <Kbd>CMD</Kbd> or <Kbd>CMD</Kbd> + <Kbd>S</Kbd>
           {isSaved && (
             <Badge ml={1} colorScheme="blue" variant="solid" fontSize="12px">
               saved!
             </Badge>
           )}
+        </Flex>
+        <Flex gap="4px" h="18px" alignItems="end">
+          <Text fontWeight="bold">OPEN:</Text>
+          <Kbd>CMD</Kbd> or <Kbd>CMD</Kbd> + <Kbd>O</Kbd>
         </Flex>
         <div
           style={{
@@ -205,14 +240,27 @@ const SidePanel = () => {
   );
 };
 
+function FocusedSourceInfo() {
+  const tempDebugSource = useStorage(tempDebugSourceStorage);
+  return (
+    <FormLabel>
+      Focused on... <br />
+      <Code>{getSourceTitle(tempDebugSource)}</Code>
+    </FormLabel>
+  );
+}
+
 function getSourceTitle(debugSource: DebugSource | null) {
   if (!debugSource) {
     return '';
   }
-  const fileName = debugSource.fileName.split('/').at(-1);
+  const fileName = String(debugSource.fileName.split('/').at(-1));
   const parentFolder = debugSource.fileName.split('/').at(-2);
   const lineNumber = debugSource.lineNumber;
-  return `${parentFolder ? parentFolder + '/' : ''}${fileName} L:${lineNumber}`;
+  if (fileName.length < 30) {
+    return `${parentFolder ? parentFolder + '/' : ''}${fileName} L:${lineNumber}`;
+  }
+  return `${fileName} L:${lineNumber}`;
 }
 
 export default withErrorBoundary(withSuspense(SidePanel, <div> Loading ... </div>), <div> Error Occur </div>);

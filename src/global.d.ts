@@ -64,11 +64,11 @@ declare type DebugSourceWithSourceCode = {
 
 declare type MessageFromInjected =
   | {
-      type: 'onClick';
+      type: 'setCurrentDebugSources';
       data: string;
     }
   | {
-      type: 'onMouseEnter';
+      type: 'setTempDebugSource';
       data: string;
     }
   | {
