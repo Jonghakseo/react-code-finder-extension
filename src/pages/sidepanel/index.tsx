@@ -3,18 +3,18 @@ import { createRoot } from 'react-dom/client';
 import refreshOnUpdate from 'virtual:reload-on-update-in-view';
 import SidePanel from '@pages/sidepanel/SidePanel';
 import { ChakraProvider } from '@chakra-ui/react';
-
-refreshOnUpdate('pages/sidepanel');
-
-import * as monaco from 'monaco-editor';
+import { languages } from 'monaco-editor';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker';
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 
+refreshOnUpdate('pages/sidepanel');
+
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 self.MonacoEnvironment = {
-  getWorker(_: any, label: string) {
+  getWorker(_: never, label: string) {
     console.log('label', label);
     if (label === 'css' || label === 'scss' || label === 'less') {
       return new cssWorker();
@@ -29,21 +29,21 @@ self.MonacoEnvironment = {
   },
 };
 
-monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-  target: monaco.languages.typescript.ScriptTarget.Latest,
+languages.typescript.typescriptDefaults.setCompilerOptions({
+  target: languages.typescript.ScriptTarget.Latest,
   allowNonTsExtensions: true,
-  moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-  module: monaco.languages.typescript.ModuleKind.CommonJS,
+  moduleResolution: languages.typescript.ModuleResolutionKind.NodeJs,
+  module: languages.typescript.ModuleKind.CommonJS,
   noEmit: true,
   esModuleInterop: true,
   strict: false,
-  jsx: monaco.languages.typescript.JsxEmit.React,
+  jsx: languages.typescript.JsxEmit.React,
   reactNamespace: 'React',
   allowJs: true,
   typeRoots: ['node_modules/@types'],
 });
 
-monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+languages.typescript.typescriptDefaults.setDiagnosticsOptions({
   noSemanticValidation: false,
   noSyntaxValidation: false,
   diagnosticCodesToIgnore: [8016, 8010, 8008],

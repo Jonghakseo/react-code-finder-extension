@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import * as monaco from 'monaco-editor';
+import { editor } from 'monaco-editor';
 import '@pages/sidepanel/SidePanel.css';
 import useStorage from '@src/shared/hooks/useStorage';
 import {
@@ -29,7 +29,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons';
 
 const SidePanel = () => {
   const monacoEl = useRef(null);
-  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const currentDebugSource = useStorage(currentDebugSourceStorage);
   const [currentDebugSourceWithSourceCode, setCurrentDebugSourceWithSourceCode] =
     useState<DebugSourceWithSourceCode | null>(null);
@@ -93,7 +93,7 @@ const SidePanel = () => {
     if (!monacoEl.current) {
       return;
     }
-    editorRef.current = monaco.editor.create(monacoEl.current!, {
+    editorRef.current = editor.create(monacoEl.current!, {
       value: currentDebugSourceWithSourceCode?.sourceCode,
       language: 'typescript',
       theme: 'vs-dark',
