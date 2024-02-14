@@ -191,7 +191,7 @@ type Config = {
           debugSources.push(currentFiber._debugSource);
         }
       }
-      currentFiber = currentFiber._debugOwner || currentFiber.return;
+      currentFiber = currentFiber._debugOwner;
     }
 
     return debugSources;
@@ -372,8 +372,11 @@ type Config = {
     if (!fiber) {
       return;
     }
-    const debugSources = findDebugSources(fiber);
-    focusBox.setAttribute('data-react-code-finder-source-file', debugSources.at(0)?.fileName?.split('/').at(-1) || '');
+    const debugSource = findDebugSource(fiber);
+    if (!debugSource) {
+      return;
+    }
+    focusBox.setAttribute('data-react-code-finder-source-file', debugSource.fileName?.split('/').at(-1) || '');
     focusBox.animate(
       [
         {
