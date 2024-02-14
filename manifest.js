@@ -35,6 +35,7 @@ const manifest = {
     {
       matches: ['http://*/*', 'https://*/*', '<all_urls>'],
       js: ['src/pages/contentInjected/index.js'],
+      world: 'ISOLATED',
       // KEY for cache invalidation
       css: ['assets/css/contentStyle<KEY>.chunk.css'],
     },

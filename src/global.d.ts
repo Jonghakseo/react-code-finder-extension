@@ -33,7 +33,8 @@ declare module '*.json' {
 // Mock Type
 declare type Fiber = {
   stateNode?: HTMLElement;
-  type: unknown | string;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  type: Function | string;
   child: Fiber | null;
   sibling: Fiber | null;
   return: Fiber | null;

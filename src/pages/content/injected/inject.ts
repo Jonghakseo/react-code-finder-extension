@@ -1,3 +1,5 @@
+type ArgumentsType<T> = T extends (...args: infer U) => unknown ? U : never;
+
 type LogLevels = 'debug' | 'prod' | 'error';
 
 type Config = {
@@ -68,7 +70,7 @@ type Config = {
     { current: undefined },
     {
       set: function (target, prop, value) {
-        setFocusBoxPosition(value);
+        debouncedSetFocusBoxPosition(value);
         return Reflect.set(target, prop, value);
       },
     },
@@ -239,6 +241,15 @@ type Config = {
     return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? '#000000' : '#FFFFFF';
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  function debounce<F extends Function>(callback: F, ms: number) {
+    let timeout: ReturnType<typeof setTimeout>;
+    return function (args: ArgumentsType<F>) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => callback(args), ms);
+    };
+  }
+
   /**
    * Cursor
    */
@@ -349,6 +360,8 @@ type Config = {
     focusBox?.remove();
   }
 
+  const debouncedSetFocusBoxPosition = debounce(setFocusBoxPosition, 100);
+
   function setFocusBoxPosition(element: HTMLElement) {
     const { height, width, top, left } = element.getBoundingClientRect();
     const focusBox = document.getElementById(focusBoxId);
@@ -372,7 +385,7 @@ type Config = {
       ],
       {
         fill: 'both',
-        duration: 10,
+        duration: 100,
       },
     );
   }
