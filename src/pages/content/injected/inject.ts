@@ -167,7 +167,10 @@ type Config = {
   }
 
   function isIgnorePath(fileName: string) {
-    return ignorePathRegexp.some(ignoreRegexp => new RegExp(ignoreRegexp).test(fileName));
+    if (ignorePathRegexp.length === 0) {
+      return false;
+    }
+    return ignorePathRegexp.filter(Boolean).some(ignoreRegexp => new RegExp(ignoreRegexp).test(fileName));
   }
 
   function findDebugSource(fiber: Fiber): DebugSource | null {
@@ -446,4 +449,4 @@ type Config = {
         break;
     }
   });
-})('prod');
+})('debug');
