@@ -449,4 +449,4 @@ type Config = {
         break;
     }
   });
-})('debug');
+})('prod');
