@@ -3,6 +3,13 @@ import 'webextension-polyfill';
 
 reloadOnUpdate('pages/background');
 
+let isInitialized = false;
+
+if (!isInitialized) {
+  isInitialized = true;
+  initialize();
+}
+
 function initialize() {
   chrome.action.setBadgeText({ text: 'OFF' });
   chrome.action.setBadgeBackgroundColor({ color: '#888' });
