@@ -56,8 +56,8 @@ devDependencies:
     specifier: 18.2.18
     version: 18.2.18
   '@types/ws':
-    specifier: 8.5.8
-    version: 8.5.8
+    specifier: 8.5.10
+    version: 8.5.10
   '@typescript-eslint/eslint-plugin':
     specifier: 6.10.0
     version: 6.10.0(@typescript-eslint/parser@6.18.1)(eslint@8.56.0)(typescript@5.2.2)
@@ -131,8 +131,8 @@ devDependencies:
     specifier: ^0.34.6
     version: 0.34.6(jsdom@22.1.0)(sass@1.69.5)
   ws:
-    specifier: 8.14.2
-    version: 8.14.2
+    specifier: 8.16.0
+    version: 8.16.0
 
 packages:
 
@@ -2280,8 +2280,8 @@ packages:
     resolution: {integrity: sha512-OxepLK9EuNEIPxWNME+C6WwbRAOOI2o2BaQEGzz5Lu2e4Z5eDnEo+/aVEDMIXywoJitJ7xWd641wrGLZdtwRyw==}
     dev: true
 
-  /@types/ws@8.5.8:
-    resolution: {integrity: sha512-flUksGIQCnJd6sZ1l5dqCEG/ksaoAg/eUwiLAGTJQcfgvZJKF++Ta4bJA6A5aPSJmsr+xlseHn4KLgVlNnvPTg==}
+  /@types/ws@8.5.10:
+    resolution: {integrity: sha512-vmQSUcfalpIq0R9q7uTo2lXs6eGIpt9wtnLdMv9LVpIjCA/+ufZRozlVoVelIYixx1ugCBKDhn89vnsEGOCx9A==}
     dependencies:
       '@types/node': 20.8.10
     dev: true
@@ -4574,7 +4574,7 @@ packages:
       whatwg-encoding: 2.0.0
       whatwg-mimetype: 3.0.0
       whatwg-url: 12.0.1
-      ws: 8.14.2
+      ws: 8.16.0
       xml-name-validator: 4.0.0
     transitivePeerDependencies:
       - bufferutil
@@ -6459,8 +6459,8 @@ packages:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
     dev: true
 
-  /ws@8.14.2:
-    resolution: {integrity: sha512-wEBG1ftX4jcglPxgFCMJmZ2PLtSbJ2Peg6TmpJFTbe9GZYOQCDPdMYu/Tm0/bGZkw8paZnJY45J4K2PZrLYq8g==}
+  /ws@8.16.0:
+    resolution: {integrity: sha512-HS0c//TP7Ina87TfiPUz1rQzMhHrl/SG2guqRcTOIUYD2q8uhUdNHZYJUaQ8aTGPzCh+c6oawMKW35nFl1dxyQ==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
