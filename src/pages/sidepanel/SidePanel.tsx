@@ -178,11 +178,11 @@ const SidePanel = () => {
         <HStack>
           <Flex gap="4px" h="18px" alignItems="end">
             <Text fontWeight="bold">SAVE:</Text>
-            <Kbd>CMD</Kbd> or <Kbd>CMD</Kbd> + <Kbd>S</Kbd>
+            <Kbd>Ctrl</Kbd> or <Kbd>CMD</Kbd> + <Kbd>S</Kbd>
           </Flex>
           <Flex gap="4px" h="18px" alignItems="end">
             <Text fontWeight="bold">OPEN:</Text>
-            <Kbd>CMD</Kbd> or <Kbd>CMD</Kbd> + <Kbd>O</Kbd>
+            <Kbd>Ctrl</Kbd> or <Kbd>CMD</Kbd> + <Kbd>O</Kbd>
           </Flex>
         </HStack>
         <div
