@@ -393,7 +393,6 @@ type Config = {
       ],
       {
         fill: 'both',
-        duration: 100,
       },
     );
   }
