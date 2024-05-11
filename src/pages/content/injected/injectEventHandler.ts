@@ -4,6 +4,7 @@ import { sendMessageToBackgroundAsync } from '@src/shared/chorme/message';
 import { currentDebugSourceStorage } from '@src/shared/storages/currentDebugSourceStorage';
 import { tempDebugSourceStorage } from '@src/shared/storages/tempDebugSourceStorage';
 import { injectionConfigStorage } from '@src/shared/storages/injectionConfigStorage';
+import { devToolsStorage } from '@src/shared/storages/devToolsStorage';
 
 refreshOnUpdate('pages/content/injected');
 
@@ -41,7 +42,10 @@ window.addEventListener('message', async function (event) {
       break;
     }
     case 'setCurrentDebugSources': {
-      sendMessageToBackgroundAsync({ type: 'openSidePanel' });
+      if (!devToolsStorage.checkIsOpen()) {
+        alert('Please open React Code Finder in DevTools.');
+        return;
+      }
       const debugSources: DebugSource[] = JSON.parse(message.data);
       await currentDebugSourceStorage.set(debugSources);
       break;

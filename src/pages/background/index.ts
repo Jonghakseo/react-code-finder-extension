@@ -54,12 +54,6 @@ chrome.runtime.onConnect.addListener(port => {
         port.postMessage({ type: 'getCurrentState', data: tabText });
         break;
       }
-      case 'openSidePanel': {
-        chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
-          tab?.id && chrome.sidePanel.open({ tabId: tab.id });
-        });
-        break;
-      }
     }
   });
 });
