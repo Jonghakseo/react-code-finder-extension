@@ -15,11 +15,8 @@ const manifest = {
   name: '__MSG_extensionName__',
   version: packageJson.version,
   description: '__MSG_extensionDescription__',
-  permissions: ['storage', 'sidePanel'],
+  permissions: ['storage'],
   host_permissions: ['<all_urls>'],
-  side_panel: {
-    default_path: 'src/pages/sidepanel/index.html',
-  },
   options_page: 'src/pages/options/index.html',
   background: {
     service_worker: 'src/pages/background/index.js',
@@ -36,8 +33,6 @@ const manifest = {
       matches: ['http://*/*', 'https://*/*', '<all_urls>'],
       js: ['src/pages/contentInjected/index.js'],
       world: 'ISOLATED',
-      // KEY for cache invalidation
-      css: ['assets/css/contentStyle<KEY>.chunk.css'],
     },
   ],
   devtools_page: 'src/pages/devtools/index.html',

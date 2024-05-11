@@ -1,7 +1,9 @@
-body {
-  background-color: #242424;
-}
-
-.container {
-  color: #ffffff;
+.App {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  padding: 12px;
 }

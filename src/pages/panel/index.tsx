@@ -1,8 +1,9 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import Panel from '@pages/panel/Panel';
-import '@pages/panel/index.css';
 import refreshOnUpdate from 'virtual:reload-on-update-in-view';
+import Panel from '@pages/panel/Panel';
+import { ChakraProvider } from '@chakra-ui/react';
+import '@pages/panel/monacoConfig';
 
 refreshOnUpdate('pages/panel');
 
@@ -12,7 +13,11 @@ function init() {
     throw new Error('Can not find #app-container');
   }
   const root = createRoot(appContainer);
-  root.render(<Panel />);
+  root.render(
+    <ChakraProvider>
+      <Panel />
+    </ChakraProvider>,
+  );
 }
 
 init();
