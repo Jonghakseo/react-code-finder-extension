@@ -309,6 +309,7 @@ type Config = {
         position: absolute !important;
         z-index: 999999 !important;
         border: 1px solid ${frameColor} !important;
+        background-color: ${frameColor}33 !important;
         border-radius: 2px !important;
         pointer-events: none !important;
       }
@@ -318,6 +319,7 @@ type Config = {
         position: absolute !important;
         z-index: 999999 !important;
         border: 1px solid ${frameColor} !important;
+        background-color: ${frameColor}33 !important;
         border-radius: 2px 2px 2px 0 !important;
         pointer-events: none !important;
       }
