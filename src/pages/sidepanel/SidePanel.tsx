@@ -85,8 +85,8 @@ const SidePanel = () => {
     }
   }, [portNumber, currentDebugSourceWithSourceCode]);
 
-  useKeyDownEffect(withCtrl('s'), saveSourceCode, [saveSourceCode]);
-  useKeyDownEffect(withCtrl('o'), openEditor, [openEditor]);
+  useKeyDownEffect(withMeta('s'), saveSourceCode, [saveSourceCode]);
+  useKeyDownEffect(withMeta('o'), openEditor, [openEditor]);
 
   useEffect(() => {
     const firstSource = currentDebugSources.at(0);
@@ -178,11 +178,11 @@ const SidePanel = () => {
         <HStack>
           <Flex gap="4px" h="18px" alignItems="end">
             <Text fontWeight="bold">SAVE:</Text>
-            <Kbd>Ctrl</Kbd> or <Kbd>CMD</Kbd> + <Kbd>S</Kbd>
+            <Kbd>Window</Kbd> or <Kbd>CMD</Kbd> + <Kbd>S</Kbd>
           </Flex>
           <Flex gap="4px" h="18px" alignItems="end">
             <Text fontWeight="bold">OPEN:</Text>
-            <Kbd>Ctrl</Kbd> or <Kbd>CMD</Kbd> + <Kbd>O</Kbd>
+            <Kbd>Window</Kbd> or <Kbd>CMD</Kbd> + <Kbd>O</Kbd>
           </Flex>
         </HStack>
         <div
@@ -217,8 +217,8 @@ function useKeyDownEffect(checkKey: (event: KeyboardEvent) => boolean, callback:
   }, deps);
 }
 
-function withCtrl(key: string) {
-  return (e: KeyboardEvent): boolean => (e.metaKey || e.ctrlKey) && e.key === key;
+function withMeta(key: string) {
+  return (e: KeyboardEvent): boolean => e.metaKey && e.key === key;
 }
 
 function getSourceTitle(debugSource: DebugSource | null) {
