@@ -1,8 +1,16 @@
 export async function setMonacoConfig() {
   const { languages } = await import('monaco-editor');
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const editorWorker = await import('monaco-editor/esm/vs/editor/editor.worker?worker');
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const cssWorker = await import('monaco-editor/esm/vs/language/css/css.worker?worker');
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const htmlWorker = await import('monaco-editor/esm/vs/language/html/html.worker?worker');
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const tsWorker = await import('monaco-editor/esm/vs/language/typescript/ts.worker?worker');
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
