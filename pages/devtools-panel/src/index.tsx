@@ -2,7 +2,6 @@ import { createRoot } from 'react-dom/client';
 import '@src/index.css';
 import Panel from '@src/Panel';
 import { ChakraProvider } from '@chakra-ui/react';
-import { setMonacoConfig } from '@src/monacoConfig';
 
 function init() {
   const appContainer = document.querySelector('#app-container');
@@ -17,6 +16,6 @@ function init() {
   );
 }
 
-setMonacoConfig().then(() => {
+import('@src/monacoConfig').then(() => {
   init();
 });
