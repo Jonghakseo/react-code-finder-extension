@@ -6,12 +6,12 @@ export default function usePingDevTools() {
 
   /**
    * We can't distinguish whether the devTools is open or not.
-   * So we ping every 300ms to keep the devTools open status.
+   * So we ping every 1.5s to keep the devTools open status.
    */
   useEffect(() => {
     setTimeout(() => {
       devToolsStorage.open();
       setTrigger(prev => prev + 1);
-    }, 300);
+    }, 1500);
   }, [trigger]);
 }
