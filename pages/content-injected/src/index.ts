@@ -255,7 +255,9 @@ const _logLevel: LogLevels = 'prod';
     let timeout: ReturnType<typeof setTimeout>;
     return function (args: ArgumentsType<F>) {
       clearTimeout(timeout);
-      timeout = setTimeout(() => callback(args), ms);
+      timeout = setTimeout(() => {
+        requestIdleCallback(() => callback(args));
+      }, ms);
     };
   }
 
