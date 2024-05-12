@@ -27,8 +27,8 @@ export const devToolsStorage: DevtoolsStorage = {
     if (!snapShot || snapShot.openTime === undefined) {
       return false;
     }
-    // check if the devtools is opened within 3 second
-    return Date.now() - snapShot.openTime < 3000;
+    // check if the devtools is opened within 1.5 second
+    return Date.now() - snapShot.openTime < 1500;
   },
   open: () => {
     storage.set({ openTime: Date.now() });
