@@ -1,0 +1,10 @@
+{
+  "extensionDescription": {
+    "description": "Extension description",
+    "message": "Chrome extension for React Developer"
+  },
+  "extensionName": {
+    "description": "Extension name",
+    "message": "React code finder"
+  }
+}

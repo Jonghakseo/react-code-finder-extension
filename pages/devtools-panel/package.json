@@ -1,0 +1,31 @@
+{
+  "name": "@chrome-extension-boilerplate/devtools-panel",
+  "version": "0.0.1",
+  "description": "chrome extension devtools panel",
+  "private": true,
+  "sideEffects": false,
+  "files": [
+    "dist/**"
+  ],
+  "scripts": {
+    "clean": "rimraf ./dist && rimraf .turbo",
+    "build": "pnpm run clean && tsc --noEmit && vite build",
+    "build:watch": "cross-env __DEV__=true vite build -w --mode development",
+    "dev": "pnpm build:watch",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "pnpm lint --fix",
+    "prettier": "prettier . --write",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@chakra-ui/icons": "^2.1.1",
+    "@chakra-ui/react": "^2.8.2",
+    "@chrome-extension-boilerplate/shared": "workspace:*",
+    "monaco-editor": "^0.48.0"
+  },
+  "devDependencies": {
+    "@chrome-extension-boilerplate/tailwindcss-config": "workspace:*",
+    "@chrome-extension-boilerplate/tsconfig": "workspace:*",
+    "@chrome-extension-boilerplate/hmr": "workspace:*"
+  }
+}
