@@ -23,7 +23,6 @@ export default defineConfig({
     sourcemap: false,
     minify: isProduction,
     reportCompressedSize: isProduction,
-    emptyOutDir: !isDev,
     rollupOptions: {
       external: ['chrome'],
     },
