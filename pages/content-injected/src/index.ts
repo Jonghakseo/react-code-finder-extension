@@ -1,16 +1,11 @@
-import { DebugSource, Fiber, MessageFromInjected, Root } from '@chrome-extension-boilerplate/shared';
+import { DebugSource, Fiber, InjectionConfig, MessageFromInjected, Root } from '@chrome-extension-boilerplate/shared';
 
 type ArgumentsType<T> = T extends (...args: infer U) => unknown ? U : never;
 
 type LogLevels = 'debug' | 'prod' | 'error';
 
 type Config = {
-  injectionConfig: {
-    showCustomCursor: boolean;
-    showHoverComponentFrame: boolean;
-    showHoverComponentName: boolean;
-    frameColor: string;
-  };
+  injectionConfig: InjectionConfig;
 };
 
 const _logLevel: LogLevels = 'prod';
@@ -58,7 +53,7 @@ const _logLevel: LogLevels = 'prod';
           resetCursor();
         }
         if (config?.injectionConfig.showHoverComponentFrame && value) {
-          setHoverComponentFrameStyle(config?.injectionConfig.showHoverComponentName);
+          setHoverComponentFrameStyle();
         } else {
           resetHoverComponentFrameStyle();
         }
@@ -310,42 +305,7 @@ const _logLevel: LogLevels = 'prod';
 
   const focusStyleId = 'react-code-finder-focus-style';
   const focusBoxId = 'react-code-finder-focus-box';
-  function setHoverComponentFrameStyle(withName: boolean) {
-    const frameColor = config?.injectionConfig.frameColor || '#000000';
-    const boxStyle = `
-      #${focusBoxId} {
-        position: absolute !important;
-        z-index: 999999 !important;
-        border: 1px solid ${frameColor} !important;
-        background-color: ${frameColor}33 !important;
-        border-radius: 2px !important;
-        pointer-events: none !important;
-      }
-    `;
-    const boxWithNameStyle = `
-      #${focusBoxId} {
-        position: absolute !important;
-        z-index: 999999 !important;
-        border: 1px solid ${frameColor} !important;
-        background-color: ${frameColor}33 !important;
-        border-radius: 2px 2px 2px 0 !important;
-        pointer-events: none !important;
-      }
-      #${focusBoxId}:after {
-        position: absolute;
-        z-index: 999999;
-        content: attr(data-react-code-finder-source-file);
-        top: 100%;
-        left: -1px;
-        font-size: 0.725rem;
-        line-height: 1.2;
-        padding: 0 0.5rem;
-        background-color: ${frameColor};
-        color: ${getInvertBlackOrWhite(frameColor)};
-        pointer-events: none;
-        border-radius: 0 0 2px 2px;
-      }
-    `;
+  function setHoverComponentFrameStyle() {
     const focusCss = (() => {
       const prevFocusCss = document.getElementById(focusStyleId);
       if (prevFocusCss) {
@@ -356,7 +316,7 @@ const _logLevel: LogLevels = 'prod';
       document.head.appendChild(styleScript);
       return styleScript;
     })();
-    focusCss.innerHTML = withName ? boxWithNameStyle : boxStyle;
+    focusCss.innerHTML = getBoxStyle();
 
     const focusBox = document.getElementById(focusBoxId);
     if (!focusBox) {
@@ -403,6 +363,61 @@ const _logLevel: LogLevels = 'prod';
         fill: 'both',
       },
     );
+  }
+
+  function getBoxStyle() {
+    const withName = !!config?.injectionConfig.showHoverComponentName;
+    const frameColor = config?.injectionConfig.frameColor || '#000000';
+    const namePosition = config?.injectionConfig.componentNamePosition || 'bottom-left';
+    if (!withName) {
+      return `
+      #${focusBoxId} {
+        position: absolute !important;
+        z-index: 999999 !important;
+        border: 1px solid ${frameColor} !important;
+        background-color: ${frameColor}33 !important;
+        border-radius: 2px !important;
+        pointer-events: none !important;
+      }
+    `;
+    }
+    const frameBorder: Record<typeof namePosition, string> = {
+      'bottom-left': 'border-radius: 2px 2px 2px 0 !important;',
+      'bottom-right': 'border-radius: 2px 2px 0 2px !important;',
+      'top-left': 'border-radius: 0 2px 2px 2px !important;',
+      'top-right': 'border-radius: 2px 0 2px 2px !important;',
+      center: 'border-radius: 2px !important;',
+    };
+    const componentNamePosition: Record<typeof namePosition, string> = {
+      'bottom-left': 'top: 100%; left: -1px;',
+      'bottom-right': 'top: 100%; right: -1px;',
+      'top-left': 'bottom: 100%; left: -1px;',
+      'top-right': 'bottom: 100%; right: -1px;',
+      center: 'top: 50%; left: 50%; transform: translate(-50%, -50%);',
+    };
+    return `
+      #${focusBoxId} {
+        position: absolute !important;
+        z-index: 999999 !important;
+        border: 1px solid ${frameColor} !important;
+        background-color: ${frameColor}33 !important;
+        ${frameBorder[namePosition]}
+        pointer-events: none !important;
+      }
+      #${focusBoxId}:after {
+        position: absolute;
+        z-index: 999999;
+        content: attr(data-react-code-finder-source-file);
+        ${componentNamePosition[namePosition]}
+        font-size: 0.725rem;
+        line-height: 1.2;
+        padding: 0 0.5rem;
+        background-color: ${frameColor};
+        color: ${getInvertBlackOrWhite(frameColor)};
+        pointer-events: none;
+        border-radius: 0 0 2px 2px;
+      }
+    `;
   }
 
   /**

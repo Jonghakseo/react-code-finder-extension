@@ -1,9 +1,10 @@
 import { BaseStorage, createStorage, StorageType } from './base';
 
-type InjectionConfig = {
+export type InjectionConfig = {
   showCustomCursor: boolean;
   showHoverComponentFrame: boolean;
   showHoverComponentName: boolean;
+  componentNamePosition: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
   frameColor: string;
 };
 
@@ -15,6 +16,7 @@ const initialConfig: InjectionConfig = {
   showCustomCursor: false,
   showHoverComponentFrame: true,
   showHoverComponentName: true,
+  componentNamePosition: 'bottom-left',
   frameColor: '#1fd3ee',
 };
 

@@ -4,7 +4,7 @@ import { devToolsStorage } from './devToolsStorage';
 import { ignorePathsStorage } from './ignorePathsStorage';
 import { editorConfigStorage } from './editorConfigStorage';
 import { tempDebugSourceStorage } from './tempDebugSourceStorage';
-import { injectionConfigStorage } from './injectionConfigStorage';
+import { injectionConfigStorage, type InjectionConfig } from './injectionConfigStorage';
 
 export {
   currentDebugSourceStorage,
@@ -17,4 +17,5 @@ export {
   StorageType,
   SessionAccessLevel,
   BaseStorage,
+  InjectionConfig,
 };

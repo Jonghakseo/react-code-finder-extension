@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '@src/Options.css';
-import { Button, Flex, FormLabel, Grid, Heading, Input, Switch, Textarea } from '@chakra-ui/react';
+import { Button, Flex, FormLabel, Grid, Heading, Input, Select, Switch, Textarea } from '@chakra-ui/react';
 import { ignorePathsStorage, injectionConfigStorage, useStorage } from '@chrome-extension-boilerplate/shared';
 
 const Options: React.FC = () => {
@@ -8,6 +8,9 @@ const Options: React.FC = () => {
   const injectConfig = useStorage(injectionConfigStorage);
   const [showCustomCursor, setShowCustomCursor] = useState<boolean>(injectConfig.showCustomCursor);
   const [showHoverComponentFrame, setShowHoverComponentFrame] = useState<boolean>(injectConfig.showHoverComponentFrame);
+  const [componentNamePosition, setComponentNamePosition] = useState(
+    injectConfig.componentNamePosition ?? 'bottom-left',
+  );
   const [showHoverComponentName, setShowHoverComponentName] = useState<boolean>(injectConfig.showHoverComponentName);
   const [frameColor, setFrameColor] = useState<string>(injectConfig.frameColor);
 
@@ -31,6 +34,7 @@ const Options: React.FC = () => {
       showHoverComponentFrame,
       showHoverComponentName,
       frameColor,
+      componentNamePosition,
     });
     alert('SAVED!');
   };
@@ -60,8 +64,9 @@ const Options: React.FC = () => {
               onChange={() => setShowHoverComponentName(!showHoverComponentName)}
             />
           </FormLabel>
+
           <FormLabel display="flex" justifyContent="space-between">
-            Show Hover Component Name
+            Highlight Color
             <Input
               size="xs"
               width="70px"
@@ -70,6 +75,21 @@ const Options: React.FC = () => {
               value={frameColor}
               onChange={event => setFrameColor(event.currentTarget.value)}
             />
+          </FormLabel>
+          <FormLabel display="flex" justifyContent="space-between">
+            Component Name Position
+            <Select
+              size="sm"
+              width="300px"
+              disabled={!showHoverComponentFrame}
+              value={componentNamePosition}
+              onChange={event => setComponentNamePosition(event.target.value as typeof componentNamePosition)}>
+              <option value="center">center</option>
+              <option value="top-left">top-left</option>
+              <option value="top-right">top-right</option>
+              <option value="bottom-left">bottom-left</option>
+              <option value="bottom-right">bottom-right</option>
+            </Select>
           </FormLabel>
         </Flex>
         <Button type="submit">SAVE</Button>
