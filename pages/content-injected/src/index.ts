@@ -126,7 +126,7 @@ const _logLevel: LogLevels = 'prod';
       Logger.error('event.currentTarget is Not HTMLElement Instance.');
       return;
     }
-    const fiber = stateNodeFiberMap.get(event.currentTarget);
+    const fiber = stateNodeFiberMap.get(event.currentTarget) ?? findBindingFiber(event.currentTarget);
     Logger.debug(fiber);
     if (!fiber) {
       Logger.prod(fiber, 'Can not find stateNode mapped with fiber.');
@@ -199,6 +199,18 @@ const _logLevel: LogLevels = 'prod';
     }
 
     return debugSources;
+  }
+
+  function findBindingFiber(element: HTMLElement): Fiber | null {
+    const reactFiberKey = Object.keys(element).find(key => {
+      const lowerCaseKey = key.toLowerCase();
+      return lowerCaseKey.startsWith('__react') && lowerCaseKey.endsWith('fiber');
+    });
+    if (!reactFiberKey) {
+      return null;
+    }
+    // @ts-ignore
+    return element[reactFiberKey] as Fiber;
   }
 
   /**
