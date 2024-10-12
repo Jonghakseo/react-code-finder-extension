@@ -23,12 +23,10 @@ export type DebugSource = {
   fileName: string;
   lineNumber: number;
   columnNumber: number;
+  props: Record<string, unknown>;
 };
 
-export type DebugSourceWithSourceCode = {
-  fileName: string;
-  lineNumber: number;
-  columnNumber: number;
+export type DebugSourceWithSourceCode = DebugSource & {
   sourceCode: string;
 };
 

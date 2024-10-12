@@ -181,7 +181,7 @@ const _logLevel: LogLevels = 'prod';
   function findDebugSource(fiber: Fiber): DebugSource | null {
     if (fiber._debugSource) {
       if (!isIgnorePath(fiber._debugSource.fileName)) {
-        return fiber._debugSource;
+        return { ...fiber._debugSource, props: fiber.pendingProps ?? {} };
       }
     }
     if (fiber._debugOwner) {
@@ -196,10 +196,7 @@ const _logLevel: LogLevels = 'prod';
     while (currentFiber) {
       if (currentFiber._debugSource) {
         if (!isIgnorePath(currentFiber._debugSource.fileName)) {
-          if (currentFiber.pendingProps && Object.keys(currentFiber.pendingProps).length !== 0) {
-            printPendingProps(currentFiber._debugSource, currentFiber.pendingProps);
-          }
-          debugSources.push(currentFiber._debugSource);
+          debugSources.push({ ...currentFiber._debugSource, props: currentFiber.pendingProps ?? {} });
         }
       }
       currentFiber = currentFiber._debugOwner;
@@ -275,16 +272,6 @@ const _logLevel: LogLevels = 'prod';
         requestIdleCallback(() => callback(args));
       }, ms);
     };
-  }
-
-  /** Print to Console */
-  function printPendingProps(debugSource: DebugSource, props: Record<string, unknown>) {
-    const fileName = String(debugSource.fileName.split('/').at(-1));
-    const parentFolder = debugSource.fileName.split('/').at(-2);
-    const targetName = parentFolder ? `${parentFolder}/${fileName}` : fileName;
-    console.group(`%c[React Code Finder] ${targetName}'s Props`, 'color: #3498db; font-weight: bold;');
-    console.log(props);
-    console.groupEnd();
   }
 
   /**
@@ -457,10 +444,39 @@ const _logLevel: LogLevels = 'prod';
   const MESSAGE_SOURCE_FROM = 'react-code-finder-from-inject' as const;
   const MESSAGE_SOURCE_TO = 'react-code-finder-to-inject' as const;
 
+  function deleteReactElementRecursive(obj: unknown): unknown {
+    if (typeof obj === 'function') {
+      return obj.name;
+    }
+    if (Array.isArray(obj)) {
+      return obj.map(deleteReactElementRecursive);
+    }
+    if (!obj) {
+      return obj;
+    }
+    if (typeof obj === 'object') {
+      if ('$$typeof' in obj) {
+        return 'ReactElement';
+      }
+      return Object.entries(obj).reduce(
+        (acc, [key, value]) => {
+          acc[key] = deleteReactElementRecursive(value);
+          return acc;
+        },
+        {} as Record<string, unknown>,
+      );
+    }
+    return obj;
+  }
+
   const postMessage = {
     setCurrentDebugSources: (debugSources: DebugSource[]) => {
       window.postMessage(
-        { source: MESSAGE_SOURCE_FROM, type: 'setCurrentDebugSources', data: JSON.stringify(debugSources) },
+        {
+          source: MESSAGE_SOURCE_FROM,
+          type: 'setCurrentDebugSources',
+          data: JSON.stringify(deleteReactElementRecursive(debugSources)),
+        },
         '*',
       );
     },
@@ -469,7 +485,11 @@ const _logLevel: LogLevels = 'prod';
     },
     setTempDebugSource: (debugSource: DebugSource) => {
       window.postMessage(
-        { source: MESSAGE_SOURCE_FROM, type: 'setTempDebugSource', data: JSON.stringify(debugSource) },
+        {
+          source: MESSAGE_SOURCE_FROM,
+          type: 'setTempDebugSource',
+          data: JSON.stringify(deleteReactElementRecursive(debugSource)),
+        },
         '*',
       );
     },
