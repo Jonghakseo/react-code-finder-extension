@@ -2,7 +2,8 @@ import { useSyncExternalStore } from 'react';
 import { BaseStorage } from '../storages';
 
 type WrappedPromise = ReturnType<typeof wrapPromise>;
-const storageMap: Map<BaseStorage<unknown>, WrappedPromise> = new Map();
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const storageMap: Map<BaseStorage<any>, WrappedPromise> = new Map();
 
 export default function useStorage<
   Storage extends BaseStorage<Data>,
@@ -10,21 +11,14 @@ export default function useStorage<
 >(storage: Storage) {
   const _data = useSyncExternalStore<Data | null>(storage.subscribe, storage.getSnapshot);
 
-  // eslint-disable-next-line
-  // @ts-ignore
   if (!storageMap.has(storage)) {
-    // eslint-disable-next-line
-    // @ts-ignore
     storageMap.set(storage, wrapPromise(storage.get()));
   }
   if (_data !== null) {
-    // eslint-disable-next-line
-    // @ts-ignore
     storageMap.set(storage, { read: () => _data });
   }
-  // eslint-disable-next-line
-  // @ts-ignore
-  return _data ?? (storageMap.get(storage)!.read() as Data);
+
+  return (_data ?? storageMap.get(storage)!.read()) as Exclude<Data, PromiseLike<unknown>>;
 }
 
 function wrapPromise<R>(promise: Promise<R>) {
@@ -42,15 +36,14 @@ function wrapPromise<R>(promise: Promise<R>) {
   );
 
   return {
-    // eslint-disable-next-line
-    // @ts-ignore
     read() {
-      if (status === 'pending') {
-        throw suspender;
-      } else if (status === 'error') {
-        throw result;
-      } else if (status === 'success') {
-        return result;
+      switch (status) {
+        case 'pending':
+          throw suspender;
+        case 'error':
+          throw result;
+        default:
+          return result;
       }
     },
   };
