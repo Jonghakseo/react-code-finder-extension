@@ -20,7 +20,7 @@ export default function PropsViewer({ currentDebugSourceWithSourceCodeProps }: P
         value: propsString,
         language: 'typescript',
         theme: 'vs-dark',
-        automaticLayout: true,
+        automaticLayout: false,
         minimap: { enabled: true },
         readOnly: true,
       });
@@ -41,6 +41,7 @@ export default function PropsViewer({ currentDebugSourceWithSourceCodeProps }: P
     <div
       style={{
         borderRadius: '12px',
+        height: '300px',
         overflow: 'hidden',
       }}
       ref={monacoEl}
