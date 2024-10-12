@@ -446,7 +446,7 @@ const _logLevel: LogLevels = 'prod';
 
   function deleteReactElementRecursive(obj: unknown): unknown {
     if (typeof obj === 'function') {
-      return obj.name || '[[Function]]';
+      return obj.name ? `[[Function]]:${obj.name}` : '[[Function]]';
     }
     if (Array.isArray(obj)) {
       return obj.map(deleteReactElementRecursive);
@@ -456,7 +456,9 @@ const _logLevel: LogLevels = 'prod';
     }
     if (typeof obj === 'object') {
       if ('$$typeof' in obj) {
-        return '[[ReactElement]]';
+        //@ts-expect-error type is function component
+        const displayName = obj.type.displayName;
+        return displayName ? `[[ReactElement]]:${displayName}` : '[[ReactElement]]';
       }
       return Object.entries(obj).reduce(
         (acc, [key, value]) => {
