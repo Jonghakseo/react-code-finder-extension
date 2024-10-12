@@ -62,8 +62,9 @@ const _logLevel: LogLevels = 'prod';
     },
   );
 
-  window.addEventListener('resize', () => resetHoverComponentFrameStyle());
-  window.addEventListener('blur', () => resetHoverComponentFrameStyle());
+  window.addEventListener('resize', resetHoverComponentFrameStyle);
+  document.addEventListener('mouseleave', resetHoverComponentFrameStyle);
+  window.addEventListener('blur', resetHoverComponentFrameStyle);
 
   let ignorePathRegexp: string[] = [];
   let fiberRoot: Root | undefined;
