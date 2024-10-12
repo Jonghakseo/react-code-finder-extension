@@ -3,17 +3,17 @@ import { type editor } from 'monaco-editor';
 import { DebugSourceWithSourceCode } from '@chrome-extension-boilerplate/shared';
 import useKeyDownEffect, { withMeta } from '@src/hooks/useKeyDownEffect';
 
-type MonacoEditorProps = {
+type SourceCodeEditorProps = {
   initialValue?: string;
   currentDebugSourceWithSourceCode: DebugSourceWithSourceCode | null;
   saveSourceCode: (fileName: string, sourceCode: string) => Promise<void>;
 };
 
-export default function MonacoEditor({
+export default function SourceCodeEditor({
   initialValue,
   currentDebugSourceWithSourceCode,
   saveSourceCode,
-}: MonacoEditorProps) {
+}: SourceCodeEditorProps) {
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoEl = useRef(null);
 

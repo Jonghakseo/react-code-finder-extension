@@ -33,10 +33,11 @@ import useHandleNetworkError from '@src/hooks/useHandleNetworkError';
 import usePingDevTools from '@src/hooks/usePingDevTools';
 import useKeyDownEffect, { withMeta } from '@src/hooks/useKeyDownEffect';
 import ClipboardCopy from '@src/components/ClipboardCopy';
-import MonacoEditor from '@src/components/MonacoEditor';
+import SourceCodeEditor from '@src/components/SourceCodeEditor';
 import { ExternalLinkIcon } from '@chakra-ui/icons';
 import getSourceTitle from '@src/debugSource/getSourceTitle';
 import FocusedSourceInfo from '@src/components/FocusedSourceInfo';
+import PropsViewer from '@src/components/PropsViewer';
 
 const Panel = () => {
   const currentDebugSources = useStorage(currentDebugSourceStorage);
@@ -155,16 +156,13 @@ const Panel = () => {
             <Text fontWeight="bold">OPEN:</Text>
             <Kbd>Window</Kbd> or <Kbd>CMD</Kbd> + <Kbd>k</Kbd>
           </Flex>
-          <Flex gap="4px" h="18px" alignItems="end">
-            <Text fontWeight="bold">Show Props:</Text>
-            <Kbd>ESC</Kbd>
-          </Flex>
         </HStack>
-        <MonacoEditor
+        <SourceCodeEditor
           saveSourceCode={saveSourceCode}
           initialValue={currentDebugSourceWithSourceCode?.sourceCode}
           currentDebugSourceWithSourceCode={currentDebugSourceWithSourceCode}
         />
+        <PropsViewer currentDebugSourceWithSourceCodeProps={currentDebugSourceWithSourceCode?.props} />
       </Grid>
     </Grid>
   );
