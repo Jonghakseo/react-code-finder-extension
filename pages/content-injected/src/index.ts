@@ -84,7 +84,10 @@ const _logLevel: LogLevels = 'prod';
   // 기존 동작을 방해하지 않기 위한 Proxy
   devToolsGlobalHook.onCommitFiberRoot = new Proxy(devToolsGlobalHook.onCommitFiberRoot, {
     apply: function (target, thisArg, argumentsList) {
-      fiberRoot = argumentsList.at(1);
+      // fiberRoot 초기화 로직: createRoot()는 무시하도록 구현
+      if (!fiberRoot && argumentsList.at(1)?._debugRootType !== 'createRoot()') {
+        fiberRoot = argumentsList.at(1);
+      }
       if (onCommitFiberRootTimout) {
         clearTimeout(onCommitFiberRootTimout);
       }
@@ -126,10 +129,10 @@ const _logLevel: LogLevels = 'prod';
       Logger.error('event.currentTarget is Not HTMLElement Instance.');
       return;
     }
-    const fiber = stateNodeFiberMap.get(event.currentTarget) ?? findBindingFiber(event.currentTarget);
+    const fiber = findBindingFiber(event.currentTarget);
     Logger.debug(fiber);
     if (!fiber) {
-      Logger.prod(fiber, 'Can not find stateNode mapped with fiber.');
+      Logger.prod(event.currentTarget, 'Can not find stateNode mapped with fiber.');
       return;
     }
     const debugSources = findDebugSources(fiber);
@@ -151,10 +154,10 @@ const _logLevel: LogLevels = 'prod';
       Logger.error('event.currentTarget is Not HTMLElement Instance.');
       return;
     }
-    const fiber = stateNodeFiberMap.get(event.currentTarget);
+    const fiber = findBindingFiber(event.currentTarget);
     Logger.debug(fiber);
     if (!fiber) {
-      Logger.prod(fiber, 'Can not find stateNode mapped with fiber.');
+      Logger.prod(event.currentTarget, 'Can not find stateNode mapped with fiber.');
       return;
     }
     const debugSource = findDebugSource(fiber);
@@ -202,6 +205,9 @@ const _logLevel: LogLevels = 'prod';
   }
 
   function findBindingFiber(element: HTMLElement): Fiber | null {
+    if (stateNodeFiberMap.has(element)) {
+      return stateNodeFiberMap.get(element)!;
+    }
     const reactFiberKey = Object.keys(element).find(key => {
       const lowerCaseKey = key.toLowerCase();
       return lowerCaseKey.startsWith('__react') && lowerCaseKey.endsWith('fiber');
@@ -209,7 +215,7 @@ const _logLevel: LogLevels = 'prod';
     if (!reactFiberKey) {
       return null;
     }
-    // @ts-ignore
+    // @ts-expect-error reactFiberKey is dynamic key
     return element[reactFiberKey] as Fiber;
   }
 
@@ -353,7 +359,7 @@ const _logLevel: LogLevels = 'prod';
     if (!focusBox) {
       return;
     }
-    const fiber = stateNodeFiberMap.get(element);
+    const fiber = findBindingFiber(element);
     if (!fiber) {
       return;
     }
