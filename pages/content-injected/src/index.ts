@@ -457,7 +457,7 @@ const _logLevel: LogLevels = 'prod';
     if (typeof obj === 'object') {
       if ('$$typeof' in obj) {
         //@ts-expect-error type is function component
-        const displayName = obj.type.displayName;
+        const displayName = obj.type?.displayName || obj.type?.name;
         return displayName ? `[[ReactElement]]:${displayName}` : '[[ReactElement]]';
       }
       return Object.entries(obj).reduce(
