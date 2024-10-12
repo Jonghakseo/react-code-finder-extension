@@ -155,6 +155,10 @@ const Panel = () => {
             <Text fontWeight="bold">OPEN:</Text>
             <Kbd>Window</Kbd> or <Kbd>CMD</Kbd> + <Kbd>k</Kbd>
           </Flex>
+          <Flex gap="4px" h="18px" alignItems="end">
+            <Text fontWeight="bold">Show Props:</Text>
+            <Kbd>ESC</Kbd>
+          </Flex>
         </HStack>
         <MonacoEditor
           saveSourceCode={saveSourceCode}

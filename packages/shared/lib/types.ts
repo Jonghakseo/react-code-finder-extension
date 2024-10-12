@@ -12,6 +12,7 @@ export type Fiber = {
     columnNumber: number;
   } | null;
   _debugOwner: Fiber | null;
+  pendingProps?: Record<string, unknown>;
 };
 
 export type Root = {

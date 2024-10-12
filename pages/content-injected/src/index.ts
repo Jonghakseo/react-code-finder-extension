@@ -196,12 +196,14 @@ const _logLevel: LogLevels = 'prod';
     while (currentFiber) {
       if (currentFiber._debugSource) {
         if (!isIgnorePath(currentFiber._debugSource.fileName)) {
+          if (currentFiber.pendingProps && Object.keys(currentFiber.pendingProps).length !== 0) {
+            printPendingProps(currentFiber._debugSource, currentFiber.pendingProps);
+          }
           debugSources.push(currentFiber._debugSource);
         }
       }
       currentFiber = currentFiber._debugOwner;
     }
-
     return debugSources;
   }
 
@@ -273,6 +275,16 @@ const _logLevel: LogLevels = 'prod';
         requestIdleCallback(() => callback(args));
       }, ms);
     };
+  }
+
+  /** Print to Console */
+  function printPendingProps(debugSource: DebugSource, props: Record<string, unknown>) {
+    const fileName = String(debugSource.fileName.split('/').at(-1));
+    const parentFolder = debugSource.fileName.split('/').at(-2);
+    const targetName = parentFolder ? `${parentFolder}/${fileName}` : fileName;
+    console.group(`%c[React Code Finder] ${targetName}'s Props`, 'color: #3498db; font-weight: bold;');
+    console.log(props);
+    console.groupEnd();
   }
 
   /**

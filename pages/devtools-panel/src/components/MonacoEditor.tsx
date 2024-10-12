@@ -41,6 +41,7 @@ export default function MonacoEditor({
         theme: 'vs-dark',
         automaticLayout: true,
         minimap: { enabled: true },
+        wordBasedSuggestions: 'currentDocument',
       });
     })();
 
