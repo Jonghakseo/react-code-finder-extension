@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { type editor } from 'monaco-editor';
+import { type editor, Selection } from 'monaco-editor';
 import { DebugSourceWithSourceCode } from '@chrome-extension-boilerplate/shared';
 
 type PropsViewerProps = {
@@ -10,7 +10,7 @@ export default function PropsViewer({ currentDebugSourceWithSourceCodeProps }: P
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const monacoEl = useRef(null);
   const propsString = currentDebugSourceWithSourceCodeProps
-    ? JSON.stringify(currentDebugSourceWithSourceCodeProps, null, 2)
+    ? 'const props = ' + JSON.stringify(currentDebugSourceWithSourceCodeProps, null, 2)
     : '';
 
   useEffect(() => {
@@ -23,6 +23,7 @@ export default function PropsViewer({ currentDebugSourceWithSourceCodeProps }: P
         automaticLayout: false,
         minimap: { enabled: true },
         readOnly: true,
+        showFoldingControls: 'always',
       });
     })();
 
@@ -34,6 +35,9 @@ export default function PropsViewer({ currentDebugSourceWithSourceCodeProps }: P
   useEffect(() => {
     if (editorRef.current && propsString) {
       editorRef.current.setValue(propsString);
+      if (propsString.length > 400) {
+        editorRef.current.getAction('editor.foldLevel2')?.run();
+      }
     }
   }, [propsString]);
 
@@ -41,7 +45,7 @@ export default function PropsViewer({ currentDebugSourceWithSourceCodeProps }: P
     <div
       style={{
         borderRadius: '12px',
-        height: '300px',
+        height: '250px',
         overflow: 'hidden',
       }}
       ref={monacoEl}
