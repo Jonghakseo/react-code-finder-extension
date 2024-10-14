@@ -46,6 +46,7 @@ export default function PropsViewer({ currentDebugSourceWithSourceCodeProps }: P
       style={{
         borderRadius: '12px',
         height: '250px',
+        width: '100%',
         overflow: 'hidden',
       }}
       ref={monacoEl}
