@@ -1,5 +1,5 @@
 import { editSource } from './editSource';
 import { getSource } from './getSource';
-import { openIDE } from './openIDE';
+import { openIDE, getSourcePath } from './openIDE';
 
-export { editSource, getSource, openIDE };
+export { editSource, getSource, openIDE, getSourcePath };

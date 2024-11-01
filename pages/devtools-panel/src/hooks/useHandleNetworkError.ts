@@ -6,7 +6,7 @@ export default function useHandleNetworkError() {
   const [networkError, setNetworkError] = useState<Error | null>(null);
 
   // eslint-disable-next-line @typescript-eslint/ban-types
-  function withHandleNetworkError<Fn extends Function>(fn: Fn) {
+  function withHandleNetworkError<Fn extends Function>(fn: Fn, fallback?: Function) {
     return async (...args: ArgumentsType<Fn>) => {
       try {
         await fn(...args);
@@ -15,6 +15,7 @@ export default function useHandleNetworkError() {
         if (e instanceof Error) {
           setNetworkError(e);
         }
+        fallback?.();
       }
     };
   }

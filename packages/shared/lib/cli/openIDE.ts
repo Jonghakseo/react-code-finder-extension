@@ -1,3 +1,4 @@
+import { injectionConfigStorage } from '../storages';
 import { DebugSource } from '../types';
 
 export async function openIDE(port: number, debugSource: DebugSource) {
@@ -9,3 +10,21 @@ export async function openIDE(port: number, debugSource: DebugSource) {
   const debugUrl = `${url}/openEditor?${params.toString()}`;
   await fetch(debugUrl);
 }
+
+export const getSourcePath = (debugSource: DebugSource) => {
+  const config = injectionConfigStorage.getSnapshot();
+  const ide = config?.preferredIDE ?? 'vscode';
+  const { fileName, lineNumber, columnNumber } = debugSource;
+  const projectPath = fileName.split('/').slice(0, -1).join('/');
+  const filePath = fileName.split('/').slice(-1)[0];
+  const line = lineNumber;
+  const column = columnNumber;
+  switch (ide) {
+    case 'vscode':
+      return `vscode://file/${projectPath}/${filePath}:${line}:${column}`;
+    case 'vscode-insiders':
+      return `vscode-insiders://file/${projectPath}/${filePath}:${line}:${column}`;
+    case 'webstorm':
+      return `webstorm://open?file=${projectPath}/${filePath}&line=${line}&column=${column}`;
+  }
+};

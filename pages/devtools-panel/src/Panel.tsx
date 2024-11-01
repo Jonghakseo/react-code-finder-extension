@@ -28,6 +28,7 @@ import {
   useStorage,
   withErrorBoundary,
   withSuspense,
+  getSourcePath,
 } from '@chrome-extension-boilerplate/shared';
 import useHandleNetworkError from '@src/hooks/useHandleNetworkError';
 import usePingDevTools from '@src/hooks/usePingDevTools';
@@ -59,12 +60,22 @@ const Panel = () => {
     setCurrentDebugSourceWithSourceCode({ ...debugSource, sourceCode: source });
   });
 
-  const openEditor = withHandleNetworkError(async () => {
-    if (!currentDebugSourceWithSourceCode) {
-      return;
-    }
-    await openIDE(portNumber, currentDebugSourceWithSourceCode);
-  });
+  const openEditor = withHandleNetworkError(
+    async () => {
+      if (!currentDebugSourceWithSourceCode) {
+        throw new Error('No source code to show');
+      }
+      await openIDE(portNumber, currentDebugSourceWithSourceCode);
+    },
+    () => {
+      const debugSource = currentDebugSources.at(currentDebugSourcesIndex);
+      if (debugSource) {
+        const sourcePath = getSourcePath(debugSource);
+        console.log(sourcePath);
+        window.open(sourcePath, '_self');
+      }
+    },
+  );
 
   const saveSourceCode = withHandleNetworkError(async (fileName: string, sourceCode: string) => {
     await editSource(portNumber, fileName, sourceCode);
@@ -98,7 +109,7 @@ const Panel = () => {
     }
     const intervalId = setInterval(() => {
       void fetchSourceCode(portNumber, currentSource);
-    }, 300);
+    }, 1000);
 
     return () => {
       clearInterval(intervalId);
