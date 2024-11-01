@@ -71,7 +71,6 @@ const Panel = () => {
       const debugSource = currentDebugSources.at(currentDebugSourcesIndex);
       if (debugSource) {
         const sourcePath = getSourcePath(debugSource);
-        console.log(sourcePath);
         window.open(sourcePath, '_self');
       }
     },
