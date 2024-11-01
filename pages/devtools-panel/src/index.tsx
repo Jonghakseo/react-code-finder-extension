@@ -18,4 +18,6 @@ function init() {
 
 import('@src/monacoConfig').then(() => {
   init();
+  const tabId = chrome.devtools.inspectedWindow.tabId;
+  chrome.tabs.sendMessage(tabId, { type: 'toggleOn' });
 });
