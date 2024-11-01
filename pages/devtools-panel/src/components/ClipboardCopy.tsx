@@ -26,10 +26,9 @@ export default function ClipboardCopy({ children }: ClipboardCopyProps) {
     window.getSelection()?.removeAllRanges();
 
     setIsCopied(true);
-    alert('Copied!');
     setTimeout(() => {
       setIsCopied(false);
-    }, 1000);
+    }, 2000);
   };
 
   return (
