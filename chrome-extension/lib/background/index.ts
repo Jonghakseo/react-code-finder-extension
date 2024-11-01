@@ -22,6 +22,50 @@ function initialize() {
 chrome.runtime.onStartup.addListener(initialize);
 chrome.runtime.onInstalled.addListener(initialize);
 
+const checkStillOpen = () => {
+  setTimeout(async () => {
+    chrome.runtime.sendMessage({ type: 'devtools-health-check' }, response => {
+      if (response === 'ok') {
+        checkStillOpen();
+      } else {
+        chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
+          tab?.id && toggleOff(tab.id);
+        });
+      }
+    });
+  }, 1000);
+};
+
+const toggleOn = (tabId: number) => {
+  chrome.action.setBadgeText({ text: 'ON' });
+  chrome.action.setBadgeBackgroundColor({ color: '#4688F1' });
+  chrome.tabs.sendMessage(tabId, { type: 'toggleOn' });
+  checkStillOpen();
+};
+
+const toggleOff = (tabId: number) => {
+  chrome.action.setBadgeText({ text: 'OFF' });
+  chrome.action.setBadgeBackgroundColor({ color: '#888' });
+  chrome.tabs.sendMessage(tabId, { type: 'toggleOff' });
+};
+
+chrome.runtime.onMessage.addListener(message => {
+  switch (message.type) {
+    case 'toggleOff': {
+      chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
+        tab?.id && toggleOff(tab.id);
+      });
+      break;
+    }
+    case 'toggleOn': {
+      chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
+        tab?.id && toggleOn(tab.id);
+      });
+      break;
+    }
+  }
+});
+
 chrome.action.onClicked.addListener(async tab => {
   const tabId = tab.id;
   if (!tabId) {
@@ -30,14 +74,10 @@ chrome.action.onClicked.addListener(async tab => {
   const tabText = await chrome.action.getBadgeText({ tabId });
   switch (tabText) {
     case 'ON':
-      chrome.action.setBadgeText({ text: 'OFF' });
-      chrome.action.setBadgeBackgroundColor({ color: '#888' });
-      chrome.tabs.sendMessage(tabId, { type: 'toggleOff' });
+      toggleOff(tabId);
       break;
     case 'OFF':
-      chrome.action.setBadgeText({ text: 'ON' });
-      chrome.action.setBadgeBackgroundColor({ color: '#4688F1' });
-      chrome.tabs.sendMessage(tabId, { type: 'toggleOn' });
+      toggleOn(tabId);
       break;
     default:
       break;
