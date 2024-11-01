@@ -11,6 +11,7 @@ const Options: React.FC = () => {
   const [componentNamePosition, setComponentNamePosition] = useState(
     injectConfig.componentNamePosition ?? 'bottom-left',
   );
+  const [preferredIDE, setPreferredIDE] = useState(injectConfig.preferredIDE ?? 'vscode');
   const [showHoverComponentName, setShowHoverComponentName] = useState<boolean>(injectConfig.showHoverComponentName);
   const [frameColor, setFrameColor] = useState<string>(injectConfig.frameColor);
 
@@ -35,6 +36,7 @@ const Options: React.FC = () => {
       showHoverComponentName,
       frameColor,
       componentNamePosition,
+      preferredIDE,
     });
     alert('SAVED!');
   };
@@ -89,6 +91,18 @@ const Options: React.FC = () => {
               <option value="top-right">top-right</option>
               <option value="bottom-left">bottom-left</option>
               <option value="bottom-right">bottom-right</option>
+            </Select>
+          </FormLabel>
+          <FormLabel display="flex" justifyContent="space-between">
+            Preferred IDE (when using without server)
+            <Select
+              size="sm"
+              width="300px"
+              value={preferredIDE}
+              onChange={event => setPreferredIDE(event.target.value as 'vscode' | 'webstorm')}>
+              <option value="vscode">vscode</option>
+              <option value="vscode-insiders">vscode-insiders</option>
+              <option value="webstorm">webstorm</option>
             </Select>
           </FormLabel>
         </Flex>
