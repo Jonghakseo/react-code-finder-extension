@@ -20,6 +20,7 @@ https://github.com/user-attachments/assets/93f24185-aa41-44c1-a724-c835e10b1c5e
 - [Install](#install)
 - [Who Will Benefit](#who-will-benefit)
 - [How to use](#how-to-use)
+- [Limitations](#limitations)
 
 ## Intro <a name="intro"></a>
 React Code Finder is a powerful development tool extension designed for Chrome. This extension aims to help React developers inspect and edit code more efficiently and swiftly right from the web browser.
@@ -50,3 +51,7 @@ React Code Finder is incredibly useful for:
 
 - If react-code-finder-server is not running, you can only use the props lookup and the ability to locate the code and open it in an editor. You can set your preferred IDE on the extension's options page. (Default: vscode)
 - You can find other options from extension's option page. (Right-click extension icon and click option!)
+
+## Limitations <a name="limitations"></a>
+
+This extension does not yet work with the react server component (RSC), as it relies internally on the binding between the html element and React Fiber, and the _debugSource field.
