@@ -12,28 +12,22 @@
 
 </div>
 
-
-
-
 https://github.com/user-attachments/assets/93f24185-aa41-44c1-a724-c835e10b1c5e
-
-
-
 
 ## Table of Contents
 
 - [Intro](#intro)
-- [Features](#features)
-- [Who Will Benefit](#who-will-benefit)
 - [Install](#install)
-- [How to Use](#how-to-use)
+- [Who Will Benefit](#who-will-benefit)
+- [How to use](#how-to-use)
 
 ## Intro <a name="intro"></a>
-React Code Finder is a powerful development tool extension designed for Chrome. This extension aims to help React developers inspect, interpret, and edit code more efficiently and swiftly right from the web browser.
+React Code Finder is a powerful development tool extension designed for Chrome. This extension aims to help React developers inspect and edit code more efficiently and swiftly right from the web browser.
 
-## Features <a name="features"></a>
-- **Code Tracking[MOUSE OVER]**: Just by pointing your mouse, you can track any React component on your web page. This tool will highlight the exact location of the source code file, down to the specific line and column of the component.
-- **Live Code Editing[RIGHT CLICK]**: An editor built into the devtools panel allows for instant code alterations. You can apply the code changes directly within your browser, eliminating the need for a separate text editor or IDE.
+
+## Install <a name="install"></a>
+Adding React Code Finder to Chrome is simple. Just head over to the [Chrome Web Store](https://chromewebstore.google.com/detail/react-code-finder/bbidpgoneibefablhfcnaennjkfbflmk) and click on the 'Add to Chrome' button. The extension will then be ready for use.
+
 
 ## Who Will Benefit <a name="who-will-benefit"></a>
 React Code Finder is incredibly useful for:
@@ -41,14 +35,18 @@ React Code Finder is incredibly useful for:
 - Developers who want to quickly locate parts of their code
 - Developers who wish to edit code in real-time and see the changes within the web browser
 
-## Install <a name="install"></a>
-Adding React Code Finder to Chrome is simple. Just head over to the Chrome Web Store and click on the 'Add to Chrome' button. The extension will then be ready for use.
 
-## How to Use <a name="how-to-use"></a>
-In order to get the most out of React Code Finder, you'll need a command-line interface (CLI). Here are the steps:
+## How to use <a name="how-to-use"></a>
 
-1. **Install the CLI**: Run the command `npx react-code-finder-server` to execute the necessary CLI for React Code Finder.
-2. **Launch React Code Finder**: Once you have the CLI running, you can launch React Code Finder via your Chrome browser.
-3. **Start Navigating and Editing**: Navigate to the web page you wish to inspect. Now you can start tracking and directly editing the React components using the side panel editor.
+1. Open Developer Tools and find the panel labeled React Code Finder. (Hint: it's very convenient to set the panel's position to the far left)
+2. With the React Code Finder panel enabled, make sure the extension icon is changed to On. (You can toggle it manually, but by default it will automatically toggle by detecting the panel's open or closed state)
+3. (Recommended) Press the copy icon at the top of the React Code Finder panel and run `npx react-code-finder-server -p 3010` into the terminal. You can change the port if it overlaps.
+3. Hover over the web component you want to find to see the component's name. 
+4. Right-click to view the component's source code and currently injected Props. (Requires react-code-finder-server to run)
+5. Use the select UI to navigate through the hierarchy of the source code to components belonging to higher hierarchies.
+6. If you want to open it in your local IDE, you can click the icon or use `CMD + K`. You can modify the source code directly in the editor and quickly save/test your changes with the `CMD + S` shortcut. (Note: This will also change the actual local source code.)
 
-With React Code Finder, I aim to facilitate a smoother and more efficient development process. Experience a more productive development environment with React Code Finder today!
+### More info
+
+- If react-code-finder-server is not running, you can only use the props lookup and the ability to locate the code and open it in an editor. You can set your preferred IDE on the extension's options page. (Default: vscode)
+- You can find other options from extension's option page. (Right-click extension icon and click option!)
