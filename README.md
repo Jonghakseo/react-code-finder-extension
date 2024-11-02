@@ -14,7 +14,9 @@
 
 
 
-https://github.com/Jonghakseo/react-code-finder-extension/assets/53500778/6e7016ae-f9e5-4b55-8c28-fb3987b9b3ef
+
+https://github.com/user-attachments/assets/93f24185-aa41-44c1-a724-c835e10b1c5e
+
 
 
 
@@ -31,7 +33,7 @@ React Code Finder is a powerful development tool extension designed for Chrome. 
 
 ## Features <a name="features"></a>
 - **Code Tracking[MOUSE OVER]**: Just by pointing your mouse, you can track any React component on your web page. This tool will highlight the exact location of the source code file, down to the specific line and column of the component.
-- **Live Code Editing[RIGHT CLICK]**: An editor built into the side panel allows for instant code alterations. You can apply the code changes directly within your browser, eliminating the need for a separate text editor or IDE.
+- **Live Code Editing[RIGHT CLICK]**: An editor built into the devtools panel allows for instant code alterations. You can apply the code changes directly within your browser, eliminating the need for a separate text editor or IDE.
 
 ## Who Will Benefit <a name="who-will-benefit"></a>
 React Code Finder is incredibly useful for:
