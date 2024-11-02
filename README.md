@@ -55,3 +55,6 @@ React Code Finder is incredibly useful for:
 ## Limitations <a name="limitations"></a>
 
 This extension does not yet work with the react server component (RSC), as it relies internally on the binding between the html element and React Fiber, and the _debugSource field.
+
+- https://github.com/facebook/react/issues/27758
+
