@@ -168,11 +168,12 @@ const Panel = () => {
           </Flex>
         </HStack>
         <SourceCodeEditor
+          disabled={!!networkError}
           saveSourceCode={saveSourceCode}
           initialValue={currentDebugSourceWithSourceCode?.sourceCode}
           currentDebugSourceWithSourceCode={currentDebugSourceWithSourceCode}
         />
-        <PropsViewer currentDebugSourceWithSourceCodeProps={currentDebugSourceWithSourceCode?.props} />
+        <PropsViewer currentDebugSourceWithSourceCodeProps={currentDebugSources.at(currentDebugSourcesIndex)?.props} />
       </Grid>
     </Grid>
   );

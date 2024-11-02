@@ -4,12 +4,14 @@ import { DebugSourceWithSourceCode } from '@chrome-extension-boilerplate/shared'
 import useKeyDownEffect, { withMeta } from '@src/hooks/useKeyDownEffect';
 
 type SourceCodeEditorProps = {
+  disabled: boolean;
   initialValue?: string;
   currentDebugSourceWithSourceCode: DebugSourceWithSourceCode | null;
   saveSourceCode: (fileName: string, sourceCode: string) => Promise<void>;
 };
 
 export default function SourceCodeEditor({
+  disabled,
   initialValue,
   currentDebugSourceWithSourceCode,
   saveSourceCode,
@@ -65,6 +67,15 @@ export default function SourceCodeEditor({
       });
     }
   }, [currentDebugSourceWithSourceCode]);
+
+  useEffect(() => {
+    if (disabled) {
+      editorRef.current?.revealPositionInCenter({ lineNumber: 1, column: 0 });
+      editorRef.current?.setValue(
+        '/**\nCan not find source code.\nPlease connect react-code-finder-server first.\n**/',
+      );
+    }
+  }, [disabled]);
 
   return (
     <div

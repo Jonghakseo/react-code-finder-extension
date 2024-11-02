@@ -40,7 +40,7 @@ export default function ClipboardCopy({ children }: ClipboardCopyProps) {
       aria-roledescription="copy-button"
       onClick={copyText}>
       <div ref={targetRef}>{children}</div>
-      {isCopied ? <CheckIcon /> : <CopyIcon />}
+      {isCopied ? <CheckIcon /> : <CopyIcon color={'green'} />}
     </Flex>
   );
 }

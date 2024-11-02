@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { type editor, Selection } from 'monaco-editor';
+import { type editor } from 'monaco-editor';
 import { DebugSourceWithSourceCode } from '@chrome-extension-boilerplate/shared';
 
 type PropsViewerProps = {
@@ -20,7 +20,7 @@ export default function PropsViewer({ currentDebugSourceWithSourceCodeProps }: P
         value: propsString,
         language: 'typescript',
         theme: 'vs-dark',
-        automaticLayout: false,
+        automaticLayout: true,
         minimap: { enabled: true },
         readOnly: true,
         showFoldingControls: 'always',
