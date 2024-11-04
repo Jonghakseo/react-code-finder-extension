@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import '@src/index.css';
 import Panel from '@src/Panel';
 import { ChakraProvider } from '@chakra-ui/react';
+import { initEditor } from '@chrome-extension-boilerplate/monaco-editor';
 
 function init() {
   const appContainer = document.querySelector('#app-container');
@@ -16,6 +17,4 @@ function init() {
   );
 }
 
-import('@src/monacoConfig').then(() => {
-  init();
-});
+initEditor(init);

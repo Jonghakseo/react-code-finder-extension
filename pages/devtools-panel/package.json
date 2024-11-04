@@ -22,7 +22,7 @@
     "@chakra-ui/react": "^2.8.2",
     "@chrome-extension-boilerplate/shared": "workspace:*",
     "@chrome-extension-boilerplate/react": "workspace:*",
-    "monaco-editor": "^0.48.0"
+    "@chrome-extension-boilerplate/monaco-editor": "workspace:*"
   },
   "devDependencies": {
     "@chrome-extension-boilerplate/tailwindcss-config": "workspace:*",

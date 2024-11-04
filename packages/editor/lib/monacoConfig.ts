@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { languages } from 'monaco-editor';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { type editor } from 'monaco-editor';
 import { DebugSourceWithSourceCode } from '@chrome-extension-boilerplate/shared';
 import useKeyDownEffect, { withMeta } from '@src/hooks/useKeyDownEffect';
+import { editor } from '@chrome-extension-boilerplate/monaco-editor';
 
 type SourceCodeEditorProps = {
   disabled: boolean;
@@ -35,17 +35,14 @@ export default function SourceCodeEditor({
   );
 
   useEffect(() => {
-    (async () => {
-      const { editor } = await import('monaco-editor');
-      editorRef.current = editor.create(monacoEl.current!, {
-        value: initialValue,
-        language: 'typescript',
-        theme: 'vs-dark',
-        automaticLayout: true,
-        minimap: { enabled: true },
-        wordBasedSuggestions: 'currentDocument',
-      });
-    })();
+    editorRef.current = editor.create(monacoEl.current!, {
+      value: initialValue,
+      language: 'typescript',
+      theme: 'vs-dark',
+      automaticLayout: true,
+      minimap: { enabled: true },
+      wordBasedSuggestions: 'currentDocument',
+    });
 
     return () => {
       editorRef.current?.dispose();

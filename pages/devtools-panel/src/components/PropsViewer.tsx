@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { type editor } from 'monaco-editor';
+import { editor } from '@chrome-extension-boilerplate/monaco-editor';
 import { DebugSourceWithSourceCode } from '@chrome-extension-boilerplate/shared';
 
 type PropsViewerProps = {
@@ -14,18 +14,15 @@ export default function PropsViewer({ currentDebugSourceWithSourceCodeProps }: P
     : '';
 
   useEffect(() => {
-    (async () => {
-      const { editor } = await import('monaco-editor');
-      editorRef.current = editor.create(monacoEl.current!, {
-        value: propsString,
-        language: 'typescript',
-        theme: 'vs-dark',
-        automaticLayout: true,
-        minimap: { enabled: true },
-        readOnly: true,
-        showFoldingControls: 'always',
-      });
-    })();
+    editorRef.current = editor.create(monacoEl.current!, {
+      value: propsString,
+      language: 'typescript',
+      theme: 'vs-dark',
+      automaticLayout: true,
+      minimap: { enabled: true },
+      readOnly: true,
+      showFoldingControls: 'always',
+    });
 
     return () => {
       editorRef.current?.dispose();
