@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { BaseStorage } from '@lib/storages/base';
+import { type BaseStorage } from '@chrome-extension-boilerplate/shared';
 
 type WrappedPromise = ReturnType<typeof wrapPromise>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

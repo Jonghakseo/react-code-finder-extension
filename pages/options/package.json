@@ -19,7 +19,8 @@
   },
   "dependencies": {
     "@chakra-ui/react": "^2.8.2",
-    "@chrome-extension-boilerplate/shared": "workspace:*"
+    "@chrome-extension-boilerplate/shared": "workspace:*",
+    "@chrome-extension-boilerplate/react": "workspace:*"
   },
   "devDependencies": {
     "@chrome-extension-boilerplate/tailwindcss-config": "workspace:*",

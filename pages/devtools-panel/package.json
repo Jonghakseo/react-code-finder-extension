@@ -21,6 +21,7 @@
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
     "@chrome-extension-boilerplate/shared": "workspace:*",
+    "@chrome-extension-boilerplate/react": "workspace:*",
     "monaco-editor": "^0.48.0"
   },
   "devDependencies": {

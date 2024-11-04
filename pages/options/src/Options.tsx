@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import '@src/Options.css';
 import { Button, Flex, FormLabel, Grid, Heading, Input, Select, Switch, Textarea } from '@chakra-ui/react';
-import { ignorePathsStorage, injectionConfigStorage, useStorage } from '@chrome-extension-boilerplate/shared';
+import { ignorePathsStorage, injectionConfigStorage } from '@chrome-extension-boilerplate/shared';
+import { useStorage } from '@chrome-extension-boilerplate/react';
 
 const Options: React.FC = () => {
   const ignorePaths = useStorage(ignorePathsStorage);

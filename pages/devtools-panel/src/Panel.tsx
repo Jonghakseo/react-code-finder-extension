@@ -25,9 +25,6 @@ import {
   editSource,
   getSource,
   openIDE,
-  useStorage,
-  withErrorBoundary,
-  withSuspense,
   getSourcePath,
 } from '@chrome-extension-boilerplate/shared';
 import useHandleNetworkError from '@src/hooks/useHandleNetworkError';
@@ -39,6 +36,7 @@ import { ExternalLinkIcon } from '@chakra-ui/icons';
 import getSourceTitle from '@src/debugSource/getSourceTitle';
 import FocusedSourceInfo from '@src/components/FocusedSourceInfo';
 import PropsViewer from '@src/components/PropsViewer';
+import { useStorage, withErrorBoundary, withSuspense } from '@chrome-extension-boilerplate/react';
 
 const Panel = () => {
   const currentDebugSources = useStorage(currentDebugSourceStorage);
