@@ -22,25 +22,10 @@ function initialize() {
 chrome.runtime.onStartup.addListener(initialize);
 chrome.runtime.onInstalled.addListener(initialize);
 
-const checkStillOpen = () => {
-  setTimeout(async () => {
-    chrome.runtime.sendMessage({ type: 'devtools-health-check' }, response => {
-      if (response === 'ok') {
-        checkStillOpen();
-      } else {
-        chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
-          tab?.id && toggleOff(tab.id);
-        });
-      }
-    });
-  }, 1000);
-};
-
 const toggleOn = (tabId: number) => {
   chrome.action.setBadgeText({ text: 'ON' });
   chrome.action.setBadgeBackgroundColor({ color: '#4688F1' });
   chrome.tabs.sendMessage(tabId, { type: 'toggleOn' });
-  checkStillOpen();
 };
 
 const toggleOff = (tabId: number) => {
