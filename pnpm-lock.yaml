@@ -254,9 +254,6 @@ importers:
       '@chrome-extension-boilerplate/shared':
         specifier: workspace:*
         version: link:../../packages/shared
-      monaco-editor:
-        specifier: ^0.48.0
-        version: 0.48.0
     devDependencies:
       '@chrome-extension-boilerplate/hmr':
         specifier: workspace:*
