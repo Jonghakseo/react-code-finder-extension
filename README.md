@@ -60,3 +60,8 @@ This extension does not yet work with the react server component (RSC), as it re
 
 - https://github.com/facebook/react/issues/27758
 
+
+## References
+
+- https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite
+- https://github.com/Jonghakseo/react-code-finder-server

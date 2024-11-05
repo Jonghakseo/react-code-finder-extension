@@ -25,16 +25,18 @@ https://github.com/user-attachments/assets/93f24185-aa41-44c1-a724-c835e10b1c5e
 
 ## 시작하기 전에 <a name="intro"></a>
 
-React Code Finder는 React를 사용하여 프론트엔드 개발을 할 때 도움이 되는 크롬 익스텐션입니다. 이 익스텐션은 브라우저에 렌더링된 요소를 통해 리액트 컴포넌트를 쉽게 찾고, 해당 컴포넌트의 소스 코드를 빠르게 확인하고 수정할 수 있도록 도와줍니다. 
+React Code Finder는 React를 사용하여 프론트엔드 개발을 할 때 도움이 되는 크롬 익스텐션입니다. 
+
+이 익스텐션은 브라우저에 렌더링된 요소를 통해 리액트 컴포넌트를 쉽게 찾고, 해당 컴포넌트의 소스 코드를 빠르게 확인하고 수정할 수 있도록 도와줍니다. 
 
 
 ## 설치 <a name="install"></a>
 
-익스텐션 설치는 [Chrome 웹 스토어](https://chromewebstore.google.com/detail/react-code-finder/bbidpgoneibefablhfcnaennjkfbflmk)로 이동하여 설치 버튼을 통해 설치하면 됩니다. (로컬 터미널에서 추가적인 서버 실행이 권장됩니다. 아래 내용을 참고해주세요.)
+익스텐션 설치는 [Chrome 웹 스토어](https://chromewebstore.google.com/detail/react-code-finder/bbidpgoneibefablhfcnaennjkfbflmk)로 이동하여 설치 버튼을 통해 설치하면 됩니다. (로컬 터미널에서 추가적인 서버 실행이 권장됩니다)
 
 ## 누구에게 도움이 되나요? <a name="who-will-benefit"></a>
 
-React Code Finder는 특히 다음과 같은 사람들에게 유용합니다:
+이 익스텐션은 특히 다음과 같은 사람들에게 유용합니다.
 
 - 프로덕트의 규모가 커지면서 렌더링 된 요소를 바탕으로 소스코드를 빠르게 찾기 어려운 개발자
 - react devtools 익스텐션의 사용성에 불만을 느끼는 개발자
@@ -64,3 +66,8 @@ React Code Finder는 특히 다음과 같은 사람들에게 유용합니다:
 
 - https://github.com/facebook/react/issues/27758
 
+
+## 참고
+
+- https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite
+- https://github.com/Jonghakseo/react-code-finder-server
