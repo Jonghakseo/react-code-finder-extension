@@ -13,7 +13,7 @@
 
 </div>
 
-https://github.com/user-attachments/assets/93f24185-aa41-44c1-a724-c835e10b1c5e
+https://github.com/user-attachments/assets/542b2101-32be-47e9-82c5-f2ea1dc5af90
 
 ## 목차
 
