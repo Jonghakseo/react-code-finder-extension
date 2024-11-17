@@ -8,7 +8,7 @@ type Config = {
   injectionConfig: InjectionConfig;
 };
 
-const _logLevel: LogLevels = 'prod';
+const _logLevel: LogLevels = 'debug';
 
 (async (logLevel: LogLevels) => {
   const Logger = {
@@ -82,12 +82,19 @@ const _logLevel: LogLevels = 'prod';
   let stateNodeFiberMap = new WeakMap<HTMLElement, Fiber>();
   let onCommitFiberRootTimout: ReturnType<typeof setTimeout> | null = null;
 
+  let isFirst = true;
   // 기존 동작을 방해하지 않기 위한 Proxy
   devToolsGlobalHook.onCommitFiberRoot = new Proxy(devToolsGlobalHook.onCommitFiberRoot, {
     apply: function (target, thisArg, argumentsList) {
-      // fiberRoot 초기화 로직: createRoot()는 무시하도록 구현
-      if (!fiberRoot && argumentsList.at(1)?._debugRootType !== 'createRoot()') {
-        fiberRoot = argumentsList.at(1);
+      const isFromCreateRoot = argumentsList.at(1)?._debugRootType === 'createRoot()';
+      // fiberRoot 초기화 로직: 최초 이후의 createRoot()는 무시하도록 구현
+      if (!fiberRoot) {
+        if (isFirst) {
+          fiberRoot = argumentsList.at(1);
+          isFirst = false;
+        } else if (!isFromCreateRoot) {
+          fiberRoot = argumentsList.at(1);
+        }
       }
       if (onCommitFiberRootTimout) {
         clearTimeout(onCommitFiberRootTimout);
@@ -109,6 +116,7 @@ const _logLevel: LogLevels = 'prod';
   function findDebugSourceAndBindEvent(root: Root) {
     stateNodeFiberMap = new WeakMap();
     let nextUnitOfWork = root.current.child;
+    console.log(nextUnitOfWork);
     while (nextUnitOfWork) {
       nextUnitOfWork = performUnitOfWork(nextUnitOfWork, workInProgress => {
         const stateNode = workInProgress.stateNode;
