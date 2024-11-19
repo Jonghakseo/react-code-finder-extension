@@ -8,7 +8,7 @@ type Config = {
   injectionConfig: InjectionConfig;
 };
 
-const _logLevel: LogLevels = 'debug';
+const _logLevel: LogLevels = 'prod';
 
 (async (logLevel: LogLevels) => {
   const Logger = {
