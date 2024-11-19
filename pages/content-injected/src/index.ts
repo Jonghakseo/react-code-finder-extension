@@ -116,7 +116,7 @@ const _logLevel: LogLevels = 'debug';
   function findDebugSourceAndBindEvent(root: Root) {
     stateNodeFiberMap = new WeakMap();
     let nextUnitOfWork = root.current.child;
-    console.log(nextUnitOfWork);
+
     while (nextUnitOfWork) {
       nextUnitOfWork = performUnitOfWork(nextUnitOfWork, workInProgress => {
         const stateNode = workInProgress.stateNode;
