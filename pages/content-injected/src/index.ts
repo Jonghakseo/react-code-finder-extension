@@ -218,7 +218,10 @@ const _logLevel: LogLevels = 'prod';
     }
     const reactFiberKey = Object.keys(element).find(key => {
       const lowerCaseKey = key.toLowerCase();
-      return lowerCaseKey.startsWith('__react') && lowerCaseKey.endsWith('fiber');
+      return (
+        (lowerCaseKey.startsWith('__react') && lowerCaseKey.endsWith('fiber')) ||
+        lowerCaseKey.startsWith('__reactInternalInstance')
+      );
     });
     if (!reactFiberKey) {
       return null;
