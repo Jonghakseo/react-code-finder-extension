@@ -100,10 +100,14 @@ const Options: React.FC = () => {
               size="sm"
               width="300px"
               value={preferredIDE}
-              onChange={event => setPreferredIDE(event.target.value as 'vscode' | 'webstorm')}>
+              onChange={event =>
+                setPreferredIDE(event.target.value as 'vscode' | 'webstorm' | 'vscode-insiders' | 'windsurf' | 'cursor')
+              }>
               <option value="vscode">vscode</option>
               <option value="vscode-insiders">vscode-insiders</option>
               <option value="webstorm">webstorm</option>
+              <option value="windsurf">windsurf</option>
+              <option value="cursor">cursor</option>
             </Select>
           </FormLabel>
         </Flex>

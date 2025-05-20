@@ -21,9 +21,10 @@ export const getSourcePath = (debugSource: DebugSource) => {
   const column = columnNumber;
   switch (ide) {
     case 'vscode':
-      return `vscode://file/${projectPath}/${filePath}:${line}:${column}`;
     case 'vscode-insiders':
-      return `vscode-insiders://file/${projectPath}/${filePath}:${line}:${column}`;
+    case 'windsurf':
+    case 'cursor':
+      return `${ide}://file/${projectPath}/${filePath}:${line}:${column}`;
     case 'webstorm':
       return `webstorm://open?file=${projectPath}/${filePath}&line=${line}&column=${column}`;
   }

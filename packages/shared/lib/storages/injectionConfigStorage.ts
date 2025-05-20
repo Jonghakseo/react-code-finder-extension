@@ -6,7 +6,7 @@ export type InjectionConfig = {
   showHoverComponentName: boolean;
   componentNamePosition: 'center' | 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
   frameColor: string;
-  preferredIDE?: 'vscode' | 'webstorm' | 'vscode-insiders';
+  preferredIDE?: 'vscode' | 'webstorm' | 'vscode-insiders' | 'windsurf' | 'cursor';
 };
 
 type InjectConfigStorage = BaseStorage<InjectionConfig> & {
