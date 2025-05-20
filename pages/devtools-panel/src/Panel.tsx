@@ -117,7 +117,7 @@ const Panel = () => {
     <Grid className="App" gap={2}>
       <Flex alignItems="center" gap={2}>
         <ClipboardCopy>
-          <Code colorScheme="yellow">{`npx react-code-finder-server -p ${portNumber}`}</Code>
+          <Code colorScheme="yellow">{`npx react-code-finder-server@latest -p ${portNumber}`}</Code>
         </ClipboardCopy>
         <NumberInput
           size="sm"
